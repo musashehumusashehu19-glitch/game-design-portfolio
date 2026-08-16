@@ -93,6 +93,10 @@
     .open { display: flex; align-items: center; gap: 8px; margin-top: auto; color: var(--accent); font-weight: 800; }
     .open span { transition: transform .2s ease; }
     .card:hover .open span { transform: translateX(4px); }
+    .card-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; }
+    .card-actions a { position: relative; z-index: 1; padding: 9px 13px; border: 1px solid color-mix(in srgb, var(--accent) 48%, transparent); border-radius: 999px; color: var(--accent); font-size: 13px; font-weight: 800; text-decoration: none; }
+    .card-actions a:first-child { background: var(--accent); color: #08111f; }
+    .card-actions a:hover { filter: brightness(1.12); }
     .about { padding: 42px 0 88px; border-top: 1px solid var(--line); }
     .about-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 46px; }
     .about p { margin: 0; color: var(--muted); }
@@ -131,21 +135,21 @@
       <p>点击任一项目进入完整网页作品；桌面端和移动端均可直接阅读。</p>
     </div>
     <section class="grid" aria-label="游戏策划项目列表">
-      <a class="card" style="--accent: var(--violet)" href="./lingyin-card-design/">
+      <article class="card" style="--accent: var(--violet)">
         <span class="card-index">PROJECT 01 · CARD SYSTEM</span>
         <h3>凌音后续专属卡牌系统设计</h3>
         <p>从英雄机制理解、机会空间拆解，到多套 Build 设计、数值校验与跨职能交付的完整复盘。</p>
         <div class="tags"><span class="tag">英雄理解</span><span class="tag">卡牌机制</span><span class="tag">数值校验</span></div>
-        <div class="open">查看完整项目 <span>→</span></div>
-      </a>
+        <div class="card-actions"><a href="./lingyin-card-design/mainline.html">主线版 · 5—8 分钟 →</a><a href="./lingyin-card-design/">完整复盘</a></div>
+      </article>
 
-      <a class="card" style="--accent: var(--cyan)" href="./balance-design-methodology/">
+      <article class="card" style="--accent: var(--cyan)">
         <span class="card-index">PROJECT 02 · BALANCE</span>
         <h3>从数据异常到版本闭环</h3>
         <p>展示 MOBA 平衡问题如何从数据与体验证据出发，形成方案、落地验证和可复用方法论。</p>
         <div class="tags"><span class="tag">数据诊断</span><span class="tag">平衡 SOP</span><span class="tag">版本复盘</span></div>
-        <div class="open">查看完整项目 <span>→</span></div>
-      </a>
+        <div class="card-actions"><a href="./balance-design-methodology/quick-view.html">速览版 · 3 分钟 →</a><a href="./balance-design-methodology/">完整作品</a></div>
+      </article>
 
       <a class="card" style="--accent: var(--blue)" href="./moba-combat-numerical-method/">
         <span class="card-index">PROJECT 03 · COMBAT NUMERICS</span>

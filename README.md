@@ -5,8 +5,8 @@
 ## 在线阅读
 
 - [作品集总览](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/)
-- [01｜凌音后续专属卡牌系统设计](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/lingyin-card-design/)
-- [02｜MOBA 平衡性方案及方法论](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/balance-design-methodology/)
+- 01｜凌音后续专属卡牌系统设计：[主线版（5—8 分钟）](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/lingyin-card-design/mainline.html) / [完整复盘](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/lingyin-card-design/)
+- 02｜MOBA 平衡性方案及方法论：[3 分钟速览](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/balance-design-methodology/quick-view.html) / [完整作品](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/balance-design-methodology/)
 - [03｜MOBA 战斗数值计算方法](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/moba-combat-numerical-method/)
 - [04｜趣味星能大乱斗](https://musashehumusashehu19-glitch.github.io/game-design-portfolio/fun-hextech-aram/)
 
