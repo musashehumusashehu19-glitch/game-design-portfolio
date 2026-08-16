@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星能大乱斗 - 趣味型星能设计</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+  :root {
+    --primary: #6C5CE7; --secondary: #A29BFE; --accent: #FD79A8;
+    --gold: #FDCB6E; --green: #00B894; --blue: #0984E3;
+    --red: #FF6B6B; --orange: #E17055; --dark: #0a0a1a;
+    --cyan: #00CEC9;
+    --gradient-1: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 50%, #FD79A8 100%);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; scroll-snap-type:y mandatory; }
+  body { font-family:'Noto Sans SC',-apple-system,sans-serif; background:var(--dark); color:#E0E0E0; overflow-x:hidden; }
+
+  .slide {
+    min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column;
+    justify-content:center; align-items:center; padding:50px 60px; position:relative; overflow:hidden;
+  }
+  .slide::before {
+    content:''; position:absolute; top:0;left:0;right:0;bottom:0; opacity:0.04;
+    background:radial-gradient(circle at 20% 50%,var(--primary) 0%,transparent 50%),
+                radial-gradient(circle at 80% 20%,var(--accent) 0%,transparent 50%);
+    pointer-events:none;
+  }
+
+  .nav-dots { position:fixed; right:30px; top:50%; transform:translateY(-50%); z-index:1000; display:flex; flex-direction:column; gap:8px; }
+  .nav-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.15); cursor:pointer; transition:all 0.3s; border:2px solid transparent; position:relative; }
+  .nav-dot:hover,.nav-dot.active { background:var(--primary); border-color:var(--secondary); transform:scale(1.3); }
+  .nav-dot[title]::after { content:attr(title); position:absolute; right:20px; top:50%; transform:translateY(-50%); white-space:nowrap; background:rgba(0,0,0,0.85); color:#fff; padding:4px 10px; border-radius:6px; font-size:11px; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+  .nav-dot:hover::after { opacity:1; }
+
+  .section-tag { display:inline-block; background:var(--gradient-1); color:#fff; padding:4px 16px; border-radius:20px; font-size:12px; font-weight:500; margin-bottom:14px; letter-spacing:2px; }
+  h2 { font-size:34px; font-weight:900; margin-bottom:8px; color:#fff; text-align:center; }
+  h3 { font-size:20px; font-weight:700; margin-bottom:12px; color:var(--secondary); }
+  p { font-size:15px; line-height:1.8; color:rgba(255,255,255,0.72); max-width:900px; }
+
+  .cover { background:radial-gradient(ellipse at center,#1a1a3e 0%,#0a0a1a 70%); }
+  .cover .logo { font-size:90px; margin-bottom:12px; animation:float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .cover .main-title { font-size:52px; font-weight:900; background:var(--gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; text-align:center; margin-bottom:12px; }
+  .cover .sub-title { font-size:18px; color:rgba(255,255,255,0.45); margin-bottom:10px; text-align:center; }
+  .cover .philosophy { font-size:17px; color:var(--gold); margin-bottom:30px; text-align:center; font-weight:500; }
+  .cover .meta { display:flex; gap:24px; font-size:13px; color:rgba(255,255,255,0.35); }
+
+  .highlight-badge { display:inline-flex; align-items:center; gap:4px; background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.3); border-radius:12px; padding:6px 12px; font-size:12px; color:var(--secondary); margin:3px; }
+
+  .cards-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; width:100%; max-width:1200px; }
+  .card { background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:22px; transition:all 0.3s; }
+  .card:hover { transform:translateY(-4px); border-color:var(--primary); background:rgba(108,92,231,0.07); }
+  .card-icon { font-size:38px; margin-bottom:10px; }
+  .card h3 { font-size:17px; color:#fff; margin-bottom:7px; }
+  .card p { font-size:13px; line-height:1.7; }
+  .card .source-tag { display:inline-block; margin-top:8px; font-size:10.5px; color:var(--gold); background:rgba(253,203,110,0.12); padding:2px 10px; border-radius:10px; }
+
+  .good-card { background:rgba(0,184,148,0.06); border:1px solid rgba(0,184,148,0.15); border-radius:14px; padding:18px; transition:all 0.3s; }
+  .good-card:hover { border-color:rgba(0,184,148,0.4); }
+  .pain-card { background:rgba(255,107,107,0.06); border:1px solid rgba(255,107,107,0.15); border-radius:14px; padding:14px 18px; transition:all 0.3s; }
+  .pain-card .pain-num { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:rgba(255,107,107,0.2); color:var(--red); font-size:11px; font-weight:700; margin-right:5px; }
+  .pain-card .pain-title { font-size:13px; font-weight:700; color:#fff; display:inline; }
+  .pain-card .pain-desc { font-size:11.5px; color:rgba(255,255,255,0.5); margin-top:4px; line-height:1.5; }
+
+  .meme-layer { display:flex; align-items:center; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:16px 20px; transition:all 0.3s; width:100%; max-width:1050px; }
+  .meme-layer:hover { border-color:var(--primary); background:rgba(108,92,231,0.05); }
+  .meme-layer .layer-icon { font-size:36px; flex-shrink:0; }
+  .meme-layer .layer-num { font-size:12px; font-weight:700; color:var(--secondary); background:rgba(108,92,231,0.2); padding:2px 10px; border-radius:10px; margin-bottom:3px; display:inline-block; }
+  .meme-layer h3 { font-size:15px; color:#fff; margin-bottom:3px; }
+  .meme-layer .examples { font-size:12px; color:var(--gold); margin-bottom:3px; }
+  .meme-layer p { font-size:12px; max-width:none; }
+  .meme-layer .insight-ref { font-size:10.5px; color:rgba(255,255,255,0.35); margin-top:3px; font-style:italic; }
+
+  /* System mechanism */
+  .sys-box { background:rgba(108,92,231,0.06); border:1px solid rgba(108,92,231,0.18); border-radius:16px; padding:22px 26px; max-width:1100px; width:100%; margin-bottom:16px; }
+  .sys-box h3 { font-size:16px; color:var(--secondary); margin-bottom:7px; }
+  .sys-flow { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; margin:14px 0; }
+  .sys-step { background:rgba(255,255,255,0.05); border-radius:12px; padding:12px 16px; text-align:center; min-width:110px; }
+  .sys-step .ss-icon { font-size:26px; margin-bottom:3px; }
+  .sys-step .ss-label { font-size:11.5px; color:rgba(255,255,255,0.7); font-weight:500; }
+  .sys-step .ss-detail { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+  .sys-arrow { font-size:20px; color:var(--gold); font-weight:900; }
+  .bond-row { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.03); border-radius:10px; padding:7px 12px; margin-bottom:5px; font-size:12px; }
+  .bond-aug { color:var(--green); font-weight:700; min-width:90px; }
+  .bond-plus { color:var(--gold); font-weight:900; }
+  .bond-normal { color:var(--secondary); min-width:120px; }
+  .bond-result { color:rgba(255,255,255,0.6); flex:1; }
+
+  /* Augment 3-col cards */
+  .aug-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; width:100%; max-width:1200px; }
+  .aug-card { border-radius:16px; padding:20px; transition:all 0.3s; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+  .aug-card:hover { transform:translateY(-3px); }
+  .aug-card .aug-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .aug-card .aug-emoji { font-size:36px; }
+  .aug-card .aug-title-group { flex:1; }
+  .aug-card .aug-name { font-size:17px; font-weight:900; color:#fff; }
+  .aug-card .aug-meme { font-size:10.5px; color:rgba(255,255,255,0.4); }
+  .aug-card .aug-section { margin-bottom:7px; }
+  .aug-card .aug-label { font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; display:inline-block; margin-bottom:3px; }
+  .aug-card .aug-text { font-size:12px; color:rgba(255,255,255,0.65); line-height:1.6; }
+  .aug-card .aug-ref-skill { font-size:10.5px; color:var(--cyan); background:rgba(0,206,201,0.1); padding:2px 8px; border-radius:8px; display:inline-block; margin-top:4px; }
+  .aug-card .aug-insight { font-size:10px; color:rgba(255,255,255,0.32); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; margin-top:auto; }
+  .aug-card .aug-bond { font-size:10px; color:var(--gold); background:rgba(253,203,110,0.1); padding:2px 7px; border-radius:8px; display:inline-block; margin-top:4px; }
+
+  .aug-card.c-green { background:rgba(0,184,148,0.08); border:1px solid rgba(0,184,148,0.2); }
+  .aug-card.c-green .aug-label { background:rgba(0,184,148,0.2); color:var(--green); }
+  .aug-card.c-purple { background:rgba(108,92,231,0.08); border:1px solid rgba(108,92,231,0.2); }
+  .aug-card.c-purple .aug-label { background:rgba(108,92,231,0.2); color:var(--secondary); }
+  .aug-card.c-gold { background:rgba(253,203,110,0.06); border:1px solid rgba(253,203,110,0.15); }
+  .aug-card.c-gold .aug-label { background:rgba(253,203,110,0.2); color:var(--gold); }
+  .aug-card.c-pink { background:rgba(253,121,168,0.06); border:1px solid rgba(253,121,168,0.15); }
+  .aug-card.c-pink .aug-label { background:rgba(253,121,168,0.2); color:var(--accent); }
+  .aug-card.c-red { background:rgba(255,107,107,0.06); border:1px solid rgba(255,107,107,0.15); }
+  .aug-card.c-red .aug-label { background:rgba(255,107,107,0.2); color:var(--red); }
+  .aug-card.c-blue { background:rgba(9,132,227,0.06); border:1px solid rgba(9,132,227,0.15); }
+  .aug-card.c-blue .aug-label { background:rgba(9,132,227,0.2); color:var(--blue); }
+  .aug-card.c-orange { background:rgba(225,112,85,0.06); border:1px solid rgba(225,112,85,0.15); }
+  .aug-card.c-orange .aug-label { background:rgba(225,112,85,0.2); color:var(--orange); }
+  .aug-card.c-teal { background:rgba(0,206,201,0.06); border:1px solid rgba(0,206,201,0.15); }
+  .aug-card.c-teal .aug-label { background:rgba(0,206,201,0.2); color:var(--cyan); }
+  .aug-card.c-steel { background:rgba(99,110,114,0.08); border:1px solid rgba(99,110,114,0.25); }
+  .aug-card.c-steel .aug-label { background:rgba(99,110,114,0.25); color:#b2bec3; }
+
+  .meme-img { width:100%; height:72px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; font-size:40px; position:relative; overflow:hidden; }
+  .meme-img .meme-tag { position:absolute; bottom:4px; right:6px; font-size:9px; background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.7); padding:2px 6px; border-radius:6px; }
+  .meme-img.mi-green { background:linear-gradient(135deg,rgba(0,184,148,0.2),rgba(0,184,148,0.08)); }
+  .meme-img.mi-purple { background:linear-gradient(135deg,rgba(108,92,231,0.2),rgba(108,92,231,0.08)); }
+  .meme-img.mi-blue { background:linear-gradient(135deg,rgba(9,132,227,0.2),rgba(9,132,227,0.08)); }
+  .meme-img.mi-pink { background:linear-gradient(135deg,rgba(253,121,168,0.2),rgba(253,121,168,0.08)); }
+  .meme-img.mi-orange { background:linear-gradient(135deg,rgba(225,112,85,0.2),rgba(225,112,85,0.08)); }
+  .meme-img.mi-steel { background:linear-gradient(135deg,rgba(99,110,114,0.25),rgba(99,110,114,0.08)); }
+  .meme-img.mi-gold { background:linear-gradient(135deg,rgba(253,203,110,0.2),rgba(253,203,110,0.08)); }
+  .meme-img.mi-red { background:linear-gradient(135deg,rgba(255,107,107,0.2),rgba(255,107,107,0.08)); }
+  .meme-img.mi-teal { background:linear-gradient(135deg,rgba(0,206,201,0.2),rgba(0,206,201,0.08)); }
+
+  .formula-box { background:rgba(108,92,231,0.1); border:2px solid rgba(108,92,231,0.3); border-radius:18px; padding:26px 36px; text-align:center; max-width:900px; }
+  .formula-text { font-size:20px; font-weight:700; color:#fff; margin-bottom:10px; }
+  .formula-parts { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
+  .formula-part { background:rgba(255,255,255,0.06); border-radius:12px; padding:10px 18px; text-align:center; }
+  .formula-part .fp-icon { font-size:26px; margin-bottom:3px; }
+  .formula-part .fp-label { font-size:12px; color:rgba(255,255,255,0.7); font-weight:500; }
+  .formula-times { font-size:26px; color:var(--gold); font-weight:900; }
+
+  .path-table { width:100%; max-width:1000px; border-collapse:separate; border-spacing:0; background:rgba(255,255,255,0.025); border-radius:14px; overflow:hidden; font-size:13px; }
+  .path-table th { background:rgba(108,92,231,0.25); padding:12px 16px; text-align:left; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,0.1); }
+  .path-table td { padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.04); color:rgba(255,255,255,0.72); }
+  .path-table tr:last-child td { border-bottom:none; }
+  .path-table tr:hover td { background:rgba(108,92,231,0.05); }
+
+  .compare-table { width:100%; max-width:1100px; border-collapse:separate; border-spacing:0; background:rgba(255,255,255,0.025); border-radius:14px; overflow:hidden; font-size:12.5px; }
+  .compare-table th { background:rgba(108,92,231,0.25); padding:10px 14px; text-align:left; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,0.1); }
+  .compare-table td { padding:9px 14px; border-bottom:1px solid rgba(255,255,255,0.04); color:rgba(255,255,255,0.72); }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .tag-new { display:inline-block; background:var(--green); color:#fff; padding:2px 7px; border-radius:8px; font-size:9px; font-weight:600; margin-left:4px; }
+
+  .slide-number { position:absolute; bottom:24px; right:34px; font-size:12px; color:rgba(255,255,255,0.15); font-weight:300; }
+
+  /* Balance mechanism */
+  .balance-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:1100px; }
+  .balance-card { background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; }
+  .balance-card h4 { font-size:14px; font-weight:700; color:var(--gold); margin-bottom:6px; }
+  .balance-card p { font-size:12px; line-height:1.6; max-width:none; }
+  .balance-card .bc-tag { display:inline-block; font-size:10px; padding:2px 8px; border-radius:8px; background:rgba(108,92,231,0.15); color:var(--secondary); margin-top:5px; }
+
+  @media (max-width:900px) {
+    .slide { padding:30px 16px; }
+    .cover .main-title { font-size:30px; }
+    h2 { font-size:26px; }
+    .aug-grid { grid-template-columns:1fr; }
+    .balance-grid { grid-template-columns:1fr; }
+    .nav-dots { display:none; }
+    .meme-layer { flex-direction:column; text-align:center; }
+    .formula-parts { flex-direction:column; }
+    .sys-flow { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+  <style>.portfolio-back{position:fixed;right:18px;bottom:18px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(8,17,31,.88);color:#fff;font:600 13px/1.2 "Microsoft YaHei",sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(12px)}.portfolio-back:hover{transform:translateY(-2px)}@media print{.portfolio-back{display:none}}</style>
+  <a class="portfolio-back" href="./" aria-label="返回趣味星能项目主页">← 完整项目</a>
+
+<nav class="nav-dots">
+  <div class="nav-dot active" onclick="scrollToSlide(0)" title="封面"></div>
+  <div class="nav-dot" onclick="scrollToSlide(1)" title="个人体验"></div>
+  <div class="nav-dot" onclick="scrollToSlide(2)" title="为什么聚焦趣味星能"></div>
+  <div class="nav-dot" onclick="scrollToSlide(3)" title="海斗底层竞争力"></div>
+  <div class="nav-dot" onclick="scrollToSlide(4)" title="梗生态五层"></div>
+  <div class="nav-dot" onclick="scrollToSlide(5)" title="复玩性保障机制"></div>
+  <div class="nav-dot" onclick="scrollToSlide(6)" title="星能获取机制"></div>
+  <div class="nav-dot" onclick="scrollToSlide(7)" title="趣味星能 1-3"></div>
+  <div class="nav-dot" onclick="scrollToSlide(8)" title="趣味星能 4-6"></div>
+  <div class="nav-dot" onclick="scrollToSlide(9)" title="趣味星能 7-9"></div>
+  <div class="nav-dot" onclick="scrollToSlide(10)" title="羁绊联动"></div>
+  <div class="nav-dot" onclick="scrollToSlide(11)" title="设计公式与成就路径"></div>
+  <div class="nav-dot" onclick="scrollToSlide(12)" title="补充改造概览"></div>
+  <div class="nav-dot" onclick="scrollToSlide(13)" title="总结"></div>
+</nav>
+
+<!-- ==================== SLIDE 0: COVER ==================== -->
+<section class="slide cover" id="slide-0">
+  <div class="logo">&#x2B50;</div>
+  <div class="main-title">星能大乱斗</div>
+  <div class="sub-title">面向11-15岁用户的海克斯大乱斗 &mdash; 趣味型星能设计</div>
+  <div class="philosophy">"他们的梗就是游戏机制，他们的整活就是成就路径"</div>
+  <div style="font-size:15px; color:rgba(255,255,255,0.6); margin-bottom:6px; font-weight:500; letter-spacing:1px;">Felixiaoli &nbsp;李小龙</div>
+  <div class="meta">
+    <span>&#x1F3AE; 元梦之星峡谷模式项目组</span>
+    <span>&#x1F4C5; 2026年4月 实习中期答辩</span>
+    <span>&#x1F3E2; 腾讯天美T1工作室</span>
+  </div>
+  <div style="margin-top:26px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+    <div class="highlight-badge">&#x1F3AE; 个人体验出发</div>
+    <div class="highlight-badge" style="background:rgba(253,203,110,0.1); border-color:rgba(253,203,110,0.3); color:var(--gold);">&#x1F4D6; 研究洞察为骨骼</div>
+    <div class="highlight-badge" style="background:rgba(0,184,148,0.1); border-color:rgba(0,184,148,0.3); color:var(--green);">&#x1F389; 趣味型星能为核心</div>
+  </div>
+  <div class="slide-number">01 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 1: EXPERIENCE ==================== -->
+<section class="slide" id="slide-1">
+  <span class="section-tag">PART 01 - 个人体验</span>
+  <h2>大乱斗的灵魂 vs 低龄用户的痛点</h2>
+  <p style="text-align:center; margin-bottom:30px;">保留灵魂，改造载体 &mdash; 从个人体验推演低龄用户需求</p>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:26px; max-width:1100px; width:100%;">
+    <div>
+      <h3 style="color:var(--green); font-size:16px; margin-bottom:14px;">&#x2705; 让我上头的灵魂（保留）</h3>
+      <div class="good-card" style="margin-bottom:10px;">
+        <h3 style="font-size:14px; color:var(--green);">&#x1F381; 开盲盒式期待感</h3>
+        <p style="font-size:12px;">随机英雄+随机海克斯 = 每局拆盲盒</p>
+        <div class="source-tag">验证：《万物皆可搜打撤》开盲盒式爽感</div>
+      </div>
+      <div class="good-card" style="margin-bottom:10px;">
+        <h3 style="font-size:14px; color:var(--green);">&#x26A1; 合法开挂的权力幻想</h3>
+        <p style="font-size:12px;">棱彩海克斯让技能CD减半 = 玩法质变</p>
+      </div>
+      <div class="good-card">
+        <h3 style="font-size:14px; color:var(--green);">&#x1F6E1;&#xFE0F; 低压力竞技氛围</h3>
+        <p style="font-size:12px;">无段位 + 随机英雄 = 天然心理缓冲</p>
+        <div class="source-tag">验证：《共鸣与逃离》低压力+获得感</div>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--red); font-size:16px; margin-bottom:14px;">&#x274C; 让我难受的载体（改造）</h3>
+      <div class="pain-card" style="margin-bottom:7px;">
+        <span class="pain-num">1</span><span class="pain-title">随机坐牢</span>
+        <div class="pain-desc">170+英雄完全随机，抽到不会玩的整局受罪</div>
+      </div>
+      <div class="pain-card" style="margin-bottom:7px;">
+        <span class="pain-num">2</span><span class="pain-title">出装迷宫</span>
+        <div class="pain-desc">150+装备复杂装备树，低龄用户信息过载</div>
+      </div>
+      <div class="pain-card" style="margin-bottom:7px;">
+        <span class="pain-num">3</span><span class="pain-title">漫长等待</span>
+        <div class="pain-desc">后期死亡等待时间递增，注意力流失</div>
+      </div>
+      <div class="pain-card" style="margin-bottom:7px;">
+        <span class="pain-num">4</span><span class="pain-title">碾压绝望</span>
+        <div class="pain-desc">失败缺乏正反馈，低龄用户对负反馈耐受力显著下降</div>
+      </div>
+      <div class="pain-card">
+        <span class="pain-num">5</span><span class="pain-title">信息过载</span>
+        <div class="pain-desc">3选1海克斯 = 限时阅读理解考试</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">02 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 2: WHY FUN AUGMENTS (排除法) ==================== -->
+<section class="slide" id="slide-2">
+  <span class="section-tag">PART 02 - 题目拆解</span>
+  <h2>排除法：为什么最终聚焦"符文设计"？</h2>
+  <p style="text-align:center; margin-bottom:12px; font-size:13px; color:rgba(255,255,255,0.5);">
+    题目：面向低龄用户（11-15岁）的海克斯大乱斗 &mdash; 玩法、系统、关卡的设计或改变
+  </p>
+  <p style="text-align:center; margin-bottom:28px; font-size:14px; color:rgba(255,255,255,0.65);">
+    对象 = <strong style="color:var(--accent);">低龄用户</strong> &nbsp;|&nbsp; 内容 = <strong style="color:var(--secondary);">海克斯大乱斗</strong> &nbsp;|&nbsp; 范围 = 玩法 / 系统 / 关卡
+  </p>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:1100px; width:100%; margin-bottom:20px;">
+    <!-- 排除项1: 复杂机制 -->
+    <div class="card" style="border-left:4px solid var(--red); opacity:0.7;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:28px;">&#x274C;</span>
+        <div>
+          <h3 style="color:var(--red); font-size:16px; margin-bottom:2px;">复杂玩法机制设计</h3>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">如英雄技能重做、新对战模式等</div>
+        </div>
+      </div>
+      <p style="font-size:12px;">低龄用户不会深入研究复杂的机制设计。他们要的是"一看就懂、一玩就爽"，而非"需要50小时理解的深度系统"。</p>
+      <div style="font-size:10.5px; color:var(--red); margin-top:6px; font-weight:600;">排除理由：认知发展阶段决定了低研究意愿</div>
+    </div>
+    <!-- 排除项2: 系统界面 -->
+    <div class="card" style="border-left:4px solid var(--red); opacity:0.7;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:28px;">&#x274C;</span>
+        <div>
+          <h3 style="color:var(--red); font-size:16px; margin-bottom:2px;">系统界面复杂度</h3>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">如出装系统、符文页配置、英雄选择等</div>
+        </div>
+      </div>
+      <p style="font-size:12px;">150+装备树、复杂符文页 &mdash; 低龄用户打开就直接劝退。界面复杂度是门槛问题，改善方案相对直接（简化/AI推荐），不需要深入展开。</p>
+      <div style="font-size:10.5px; color:var(--red); margin-top:6px; font-weight:600;">排除理由：解法明确（简化即可），无需深入设计</div>
+    </div>
+    <!-- 排除项3: 数值平衡 -->
+    <div class="card" style="border-left:4px solid var(--red); opacity:0.7;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:28px;">&#x274C;</span>
+        <div>
+          <h3 style="color:var(--red); font-size:16px; margin-bottom:2px;">数值及其平衡</h3>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">如英雄数值、装备数值、伤害公式等</div>
+        </div>
+      </div>
+      <p style="font-size:12px;">低龄用户对数值的感知不深 &mdash; "加双防还是减伤"对他们没有区别。数值平衡是重要的底层工作，但对低龄用户来说不是体验的核心差异点。</p>
+      <div style="font-size:10.5px; color:var(--red); margin-top:6px; font-weight:600;">排除理由：低龄用户感知弱，非核心体验差异</div>
+    </div>
+    <!-- 排除项4: 关卡 -->
+    <div class="card" style="border-left:4px solid var(--red); opacity:0.7;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:28px;">&#x274C;</span>
+        <div>
+          <h3 style="color:var(--red); font-size:16px; margin-bottom:2px;">关卡设计</h3>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">如地图结构、地形机制等</div>
+        </div>
+      </div>
+      <p style="font-size:12px;">大乱斗模式本身没有"关卡"的概念 &mdash; 嚎哭深渊就一条路。ARAM的核心体验在于"人与人的随机碰撞"而非"关卡挑战"，不存在传统关卡设计空间。</p>
+      <div style="font-size:10.5px; color:var(--red); margin-top:6px; font-weight:600;">排除理由：大乱斗无关卡概念</div>
+    </div>
+  </div>
+
+  <!-- 最终聚焦（两层递进：容器 → 内容） -->
+  <div style="max-width:1100px; width:100%; display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:stretch;">
+
+    <!-- 第一层：空间收束 -->
+    <div style="background:rgba(0,184,148,0.08); border:2px solid rgba(0,184,148,0.3); border-radius:16px; padding:16px 20px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:24px;">&#x2705;</span>
+        <h3 style="color:var(--green); font-size:15px; margin-bottom:0;">第一层｜容器</h3>
+      </div>
+      <div style="font-size:13px; color:#fff; font-weight:700; margin-bottom:6px;">最终聚焦：海克斯符文（星能）设计</div>
+      <p style="font-size:11.5px; color:rgba(255,255,255,0.62); line-height:1.55; margin-bottom:6px;">
+        低龄用户<strong style="color:var(--green);">感知最强、体验差异最大、设计空间最丰富</strong>的切入点。每次选择都是"拆盲盒"的核心兴奋点。
+      </p>
+      <div style="font-size:10.5px; color:rgba(255,255,255,0.38); font-style:italic;">→ 确定了在哪里做</div>
+    </div>
+
+    <!-- 连接符 -->
+    <div style="display:flex; align-items:center; justify-content:center; font-size:34px; color:var(--gold); font-weight:900;">&times;</div>
+
+    <!-- 第二层：内容填充 -->
+    <div style="background:rgba(253,121,168,0.08); border:2px solid rgba(253,121,168,0.3); border-radius:16px; padding:16px 20px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:24px;">&#x1F3AF;</span>
+        <h3 style="color:var(--accent); font-size:15px; margin-bottom:0;">第二层｜内容</h3>
+      </div>
+      <div style="font-size:13px; color:#fff; font-weight:700; margin-bottom:6px;">容器要装什么？&mdash; 梗文化</div>
+      <p style="font-size:11.5px; color:rgba(255,255,255,0.62); line-height:1.55; margin-bottom:6px;">
+        符文把玩法"容器化"之后，真正决定低龄用户买不买账的，是<strong style="color:var(--accent);">装什么内容进去</strong>。
+      </p>
+      <div style="font-size:10.5px; color:rgba(255,255,255,0.38); font-style:italic;">→ 确定了装什么进去</div>
+    </div>
+  </div>
+
+  <!-- 支撑论据条 -->
+  <div style="max-width:1100px; width:100%; margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+    <div class="highlight-badge" style="background:rgba(0,184,148,0.12); border-color:rgba(0,184,148,0.3); color:var(--green);">&#x1F389; 整活乐子文化兴起 &middot; 《年度复盘》</div>
+    <div class="highlight-badge" style="background:rgba(253,203,110,0.1); border-color:rgba(253,203,110,0.3); color:var(--gold);">&#x1F4E2; 梗 = 最好的传播基因 &middot; 《三角洲行动》</div>
+    <div class="highlight-badge" style="background:rgba(253,121,168,0.12); border-color:rgba(253,121,168,0.3); color:var(--accent);">&#x1F9EC; 趣味星能 = 海克斯符文 &times; 梗文化</div>
+  </div>
+
+  <!-- 结论句 -->
+  <div style="max-width:1100px; width:100%; margin-top:12px; text-align:center; padding:10px 20px; background:rgba(108,92,231,0.08); border:1px solid rgba(108,92,231,0.25); border-radius:12px;">
+    <div style="font-size:13.5px; color:#fff; font-weight:600;">
+      我的设计方向 &rarr; <span style="color:var(--accent);">趣味型星能</span>
+    </div>
+    <div style="font-size:11px; color:rgba(255,255,255,0.45); margin-top:3px;">但在讲具体设计之前，下一页先回答一个前置问题：海斗本身为什么就值得玩？</div>
+  </div>
+
+  <div class="slide-number">03 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 2.5: HEXTECH FOUNDATION (海斗底层竞争力) ==================== -->
+<section class="slide" id="slide-foundation">
+  <span class="section-tag">PART 02 - 模式底层</span>
+
+  <!-- 顶部核心观点横幅 -->
+  <div style="background:linear-gradient(135deg, rgba(9,132,227,0.15), rgba(0,206,201,0.1)); border:1px solid rgba(9,132,227,0.25); border-radius:14px; padding:14px 32px; text-align:center; max-width:1280px; width:100%; margin-bottom:18px;">
+    <div style="font-size:17px; font-weight:700; color:#fff; letter-spacing:0.3px;">在谈梗文化之前，先看清海斗本身为什么好玩 &mdash; <span style="color:var(--cyan);">长线筛选</span> &times; <span style="color:var(--accent);">对称性哲学</span> &times; <span style="color:var(--gold);">受控随机</span> 是这个模式的底层护城河</div>
+    <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:5px;">梗星能设计必须站在这条护城河之上，而不是取代它</div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; max-width:1280px; width:100%; margin-bottom:14px;">
+
+    <!-- 左栏：长线筛选 -->
+    <div class="card" style="border-left:4px solid var(--cyan); background:rgba(0,206,201,0.04); padding:18px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <span style="font-size:28px;">&#x1F50D;</span>
+        <div>
+          <h3 style="color:var(--cyan); font-size:15px; margin-bottom:2px;">长线筛选</h3>
+          <div style="font-size:10.5px; color:rgba(255,255,255,0.4);">多轮打磨思想</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px; color:rgba(255,255,255,0.7); line-height:1.7; margin-bottom:10px;">
+        <strong style="color:var(--cyan);">三轮筛选流程：</strong><br>
+        内部测试 &rarr; 斗魂竞技场验证 &rarr; 正式上线
+      </div>
+
+      <div style="font-size:11.5px; color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:10px;">
+        每一轮都在过滤强度异常和趣味不足的符文，留存下来的都是经过玩家行为验证的"值得玩"。
+      </div>
+
+      <div style="background:rgba(0,206,201,0.08); border-radius:8px; padding:8px 10px; margin-bottom:8px;">
+        <div style="font-size:10.5px; color:var(--cyan); font-weight:700; margin-bottom:3px;">借鉴自LOL大乱斗</div>
+        <div style="font-size:10.5px; color:rgba(255,255,255,0.55); line-height:1.5;">
+          同样的机制已经在LOL大乱斗上被验证可行，元梦可以直接复用思想。
+        </div>
+      </div>
+
+      <div style="font-size:11px; color:rgba(255,255,255,0.5); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
+        <strong style="color:var(--gold);">筛选产物 = 社区记忆</strong><br>
+        <span style="font-size:10.5px;">瑞天帝、万血蒙多 &rarr; LOL大乱斗的专属梗符号</span>
+      </div>
+    </div>
+
+    <!-- 中栏：对称性哲学（新独立栏） -->
+    <div class="card" style="border-left:4px solid var(--accent); background:rgba(253,121,168,0.04); padding:18px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <span style="font-size:28px;">&#x269C;&#xFE0F;</span>
+        <div>
+          <h3 style="color:var(--accent); font-size:15px; margin-bottom:2px;">对称性哲学</h3>
+          <div style="font-size:10.5px; color:rgba(255,255,255,0.4);">对称表象 × 不对称趣味</div>
+        </div>
+      </div>
+
+      <div style="font-size:11.5px; color:rgba(255,255,255,0.65); line-height:1.6; margin-bottom:10px;">
+        符文按<strong>体型 / 输出类型 / 成长方式</strong>等维度，<strong style="color:var(--accent);">设计上必然透露出对称感</strong>——但经长线筛选后，每对"对称"都被<strong style="color:var(--gold);">有意打破</strong>。
+      </div>
+
+      <div style="background:rgba(0,206,201,0.08); border-radius:8px; padding:8px 10px; margin-bottom:7px;">
+        <div style="font-size:10.5px; color:var(--cyan); font-weight:700; margin-bottom:3px;">&#x2713; 看似对称（体型维度）</div>
+        <div style="font-size:10.5px; color:rgba(255,255,255,0.6); line-height:1.5;">
+          歌利亚巨人 <span style="color:rgba(255,255,255,0.4);">（变大+血量+适应）</span><br>
+          vs 缩小引擎 <span style="color:rgba(255,255,255,0.4);">（变小+极速+移速）</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(253,203,110,0.08); border-radius:8px; padding:8px 10px; margin-bottom:8px;">
+        <div style="font-size:10.5px; color:var(--gold); font-weight:700; margin-bottom:3px;">&#x2717; 实则错位（叠加维度）</div>
+        <div style="font-size:10.5px; color:rgba(255,255,255,0.6); line-height:1.5;">
+          钢化你心 <span style="color:rgba(255,255,255,0.4);">（心之钢×3叠）</span><br>
+          无纯对标的"法强×3"符文<br>
+          <span style="color:rgba(255,255,255,0.4);">（超凡邪恶走技能命中叠层）</span>
+        </div>
+      </div>
+
+      <div style="font-size:10.5px; color:rgba(255,255,255,0.5); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px; line-height:1.55; font-style:italic;">
+        "对得上又不对等"—— 这就是爽点差异的来源
+      </div>
+    </div>
+
+    <!-- 右栏：推荐算法 -->
+    <div class="card" style="border-left:4px solid var(--gold); background:rgba(253,203,110,0.04); padding:18px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <span style="font-size:28px;">&#x1F3AF;</span>
+        <div>
+          <h3 style="color:var(--gold); font-size:15px; margin-bottom:2px;">推荐算法</h3>
+          <div style="font-size:10.5px; color:rgba(255,255,255,0.4);">受控随机</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,107,107,0.06); border-radius:8px; padding:7px 10px; margin-bottom:6px;">
+        <div style="font-size:10.5px; color:var(--red); font-weight:700; margin-bottom:2px;">&#x274C; 传统肉鸽</div>
+        <div style="font-size:10.5px; color:rgba(255,255,255,0.55); line-height:1.5;">前期选一把武器后路线被第一选择死锁</div>
+      </div>
+
+      <div style="background:rgba(0,184,148,0.06); border-radius:8px; padding:7px 10px; margin-bottom:10px;">
+        <div style="font-size:10.5px; color:var(--green); font-weight:700; margin-bottom:2px;">&#x2705; 海斗机制</div>
+        <div style="font-size:10.5px; color:rgba(255,255,255,0.55); line-height:1.5;">已选符文+英雄特效作为输入，对联动符文做权重倾斜</div>
+      </div>
+
+      <div style="background:rgba(253,203,110,0.08); border-radius:8px; padding:8px 10px; margin-bottom:8px;">
+        <div style="font-size:10.5px; color:var(--gold); font-weight:700; margin-bottom:3px;">Build成型感 = 复玩性来源</div>
+        <div style="font-size:10.5px; color:rgba(255,255,255,0.6); line-height:1.5;">
+          每次刷新都"离成型更近一步"，同一英雄每局可收敛出不同主流Build。
+        </div>
+      </div>
+
+      <div style="font-size:11px; color:rgba(255,255,255,0.5); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
+        <strong style="color:var(--accent);">对低龄用户尤其关键</strong><br>
+        <span style="font-size:10.5px;">不会因纯随机劝退，方向感比惊喜更重要</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 hero sentence -->
+  <div style="max-width:1280px; width:100%; background:rgba(108,92,231,0.08); border:1.5px solid rgba(108,92,231,0.3); border-radius:14px; padding:14px 28px; text-align:center;">
+    <div style="font-size:14.5px; color:#fff; font-weight:600; line-height:1.6;">
+      海斗的复玩性 = <span style="color:var(--cyan);">筛选沉淀</span> &times; <span style="color:var(--accent);">对称性哲学</span> &times; <span style="color:var(--gold);">受控随机</span>
+      <span style="font-size:12px; color:var(--green); background:rgba(0,184,148,0.15); padding:2px 8px; border-radius:8px; margin-left:6px; font-weight:500;">机制层已成熟</span><br>
+      <span style="font-size:12.5px; color:rgba(255,255,255,0.55); font-weight:400;">&rarr; 下一步要回答的是：<strong style="color:var(--accent);">内容层放什么</strong>，才能让低龄用户想进来？</span>
+    </div>
+  </div>
+
+  <div class="slide-number">04 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 3: MEME ECOLOGY (方案A Hero Statement) ==================== -->
+<section class="slide" id="slide-3">
+  <span class="section-tag">PART 02 - 梗生态分析</span>
+
+  <!-- 顶部核心观点横幅（两层：为什么研究梗 + 研究什么） -->
+  <div style="background:linear-gradient(135deg, rgba(108,92,231,0.15), rgba(253,121,168,0.1)); border:1px solid rgba(108,92,231,0.2); border-radius:14px; padding:14px 36px; text-align:center; max-width:1200px; width:100%; margin-bottom:16px;">
+    <div style="font-size:13.5px; color:rgba(255,255,255,0.8); letter-spacing:0.3px; margin-bottom:6px; padding-bottom:6px; border-bottom:1px dashed rgba(255,255,255,0.12);">
+      <span style="color:var(--gold); font-weight:700;">【为什么要研究梗？】</span>
+      <span style="font-weight:500;">符文是容器，梗是最好的填充物</span>
+      <span style="font-size:11px; color:rgba(255,255,255,0.45); font-weight:400;">&nbsp;&middot;&nbsp;整活文化兴起 &times; 梗=传播基因</span>
+    </div>
+    <div style="font-size:17px; font-weight:700; color:#fff; letter-spacing:0.3px;">
+      <span style="color:var(--accent); font-weight:700;">【研究什么？】</span>
+      了解他们在<span style="color:var(--gold);">玩什么梗</span>、<span style="color:var(--accent);">整什么活</span>，才能设计出<span style="color:var(--green);">他们想选的星能</span>
+    </div>
+    <div style="font-size:10.5px; color:rgba(255,255,255,0.3); margin-top:4px;">11-15岁用户梗生态分析 &mdash; 从用户语言到游戏机制的转译</div>
+  </div>
+
+  <div style="display:flex; gap:20px; width:100%; max-width:1200px; align-items:stretch;">
+
+    <!-- 左侧：五层梗（保持不变） -->
+    <div style="flex:0 0 520px; display:flex; flex-direction:column; gap:7px;">
+      <div class="meme-layer" style="padding:9px 14px;">
+        <div class="layer-icon" style="font-size:26px;">&#x1F483;</div>
+        <div>
+          <div class="layer-num">第一层</div>
+          <h3 style="font-size:13px;">身体化表达梗</h3>
+          <div class="examples" style="font-size:10.5px;">科目三舞蹈 / 举牌求饶 / 鬼畜动作</div>
+          <p style="font-size:10.5px;">"用身体搞怪替代语言表达" &mdash; 低门槛社交</p>
+          <div class="insight-ref">《沉浸式发癫》社交驱动型RP</div>
+        </div>
+      </div>
+      <div class="meme-layer" style="padding:9px 14px;">
+        <div class="layer-icon" style="font-size:26px;">&#x1F3AD;</div>
+        <div>
+          <div class="layer-num">第二层</div>
+          <h3 style="font-size:13px;">身份标签梗</h3>
+          <div class="examples" style="font-size:10.5px;">你个老六 / 显眼包 / i人e人</div>
+          <p style="font-size:10.5px;">一个词定义自己，降低社交成本</p>
+          <div class="insight-ref">《00后社交》高社交需求+低自我效能</div>
+        </div>
+      </div>
+      <div class="meme-layer" style="padding:9px 14px;">
+        <div class="layer-icon" style="font-size:26px;">&#x1F9E0;</div>
+        <div>
+          <div class="layer-num">第三层</div>
+          <h3 style="font-size:13px;">空耳/脑腐/抽象梗</h3>
+          <div class="examples" style="font-size:10.5px;">我的刀盾 / 外国山海经 / Skibidi</div>
+          <p style="font-size:10.5px;">"无意义的荒诞=纯粹快乐"，中小学生社交货币</p>
+          <div class="insight-ref">《年度复盘》抽象文化=沟通语言</div>
+        </div>
+      </div>
+      <div class="meme-layer" style="padding:9px 14px;">
+        <div class="layer-icon" style="font-size:26px;">&#x270A;</div>
+        <div>
+          <div class="layer-num">第四层</div>
+          <h3 style="font-size:13px;">反权威/反规则梗</h3>
+          <div class="examples" style="font-size:10.5px;">鸡爪流 / 一保四 / "芭比Q了"</div>
+          <p style="font-size:10.5px;">解构规则、自创玩法，反抗单一评价体系</p>
+          <div class="insight-ref">《不确定时代》反优绩主义泛化</div>
+        </div>
+      </div>
+      <div class="meme-layer" style="padding:9px 14px;">
+        <div class="layer-icon" style="font-size:26px;">&#x1F49D;</div>
+        <div>
+          <div class="layer-num">第五层</div>
+          <h3 style="font-size:13px;">情感代偿梗</h3>
+          <div class="examples" style="font-size:10.5px;">公主请上班 / 哈基米 / 尊嘟假嘟</div>
+          <p style="font-size:10.5px;">可爱化语言给日常加"滤镜"，轻度情感代偿</p>
+          <div class="insight-ref">《共鸣与逃离》56.3%愿为情绪价值付费</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：发言气泡 + 紧密词云 -->
+    <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:12px;">
+
+      <!-- 用户真实发言 -->
+      <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:12px 14px;">
+        <div style="font-size:11px; color:var(--accent); font-weight:600; margin-bottom:7px; letter-spacing:1px;">&#x1F4AC; 用户真实声音</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;">
+          <div style="background:rgba(253,121,168,0.08); border:1px solid rgba(253,121,168,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"能整活就行 赢不赢无所谓"</div>
+          <div style="background:rgba(108,92,231,0.08); border:1px solid rgba(108,92,231,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"被队友骂了不想打了"</div>
+          <div style="background:rgba(0,184,148,0.08); border:1px solid rgba(0,184,148,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"负战绩主打一个欢乐"</div>
+          <div style="background:rgba(253,203,110,0.08); border:1px solid rgba(253,203,110,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"装备太多根本看不懂"</div>
+          <div style="background:rgba(225,112,85,0.08); border:1px solid rgba(225,112,85,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"又菜又爱玩 但快乐就够了"</div>
+          <div style="background:rgba(0,206,201,0.08); border:1px solid rgba(0,206,201,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"死了等好久 好无聊"</div>
+          <div style="background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"想玩游戏放松 结果被骂菜"</div>
+          <div style="background:rgba(9,132,227,0.08); border:1px solid rgba(9,132,227,0.15); border-radius:14px; padding:4px 10px; font-size:10px; color:rgba(255,255,255,0.7);">"想要超搞笑的技能 一放队友全笑"</div>
+        </div>
+      </div>
+
+      <!-- 紧密圆形词云 -->
+      <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:12px 14px; flex:1; display:flex; flex-direction:column;">
+        <div style="font-size:11px; color:var(--gold); font-weight:600; margin-bottom:6px; letter-spacing:1px;">&#x1F4CA; 关键词频率</div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+          <div style="position:relative; width:380px; height:380px;">
+            <!-- 核心（最大） -->
+            <div style="position:absolute;left:148px;top:148px;width:84px;height:84px;border-radius:50%;background:radial-gradient(circle,rgba(253,203,110,0.35),rgba(253,203,110,0.12));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--gold);border:2px solid rgba(253,203,110,0.4);animation:pulse 3s ease-in-out infinite;">快乐</div>
+            <!-- 第二圈（大） -->
+            <div style="position:absolute;left:82px;top:105px;width:66px;height:66px;border-radius:50%;background:radial-gradient(circle,rgba(0,184,148,0.3),rgba(0,184,148,0.1));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--green);border:1.5px solid rgba(0,184,148,0.3);">搞笑</div>
+            <div style="position:absolute;left:232px;top:108px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,rgba(253,121,168,0.3),rgba(253,121,168,0.1));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);border:1.5px solid rgba(253,121,168,0.3);">整活</div>
+            <div style="position:absolute;left:100px;top:232px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,107,0.3),rgba(255,107,107,0.1));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--red);border:1.5px solid rgba(255,107,107,0.3);">被骂</div>
+            <div style="position:absolute;left:218px;top:228px;width:62px;height:62px;border-radius:50%;background:radial-gradient(circle,rgba(225,112,85,0.3),rgba(225,112,85,0.1));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--orange);border:1.5px solid rgba(225,112,85,0.3);">太难了</div>
+            <div style="position:absolute;left:128px;top:72px;width:58px;height:58px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,0.3),rgba(108,92,231,0.1));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--secondary);border:1.5px solid rgba(108,92,231,0.3);">显眼包</div>
+            <!-- 第三圈（中） -->
+            <div style="position:absolute;left:38px;top:162px;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,rgba(0,206,201,0.25),rgba(0,206,201,0.08));display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--cyan);border:1px solid rgba(0,206,201,0.2);">老六</div>
+            <div style="position:absolute;left:290px;top:160px;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,0.2),rgba(108,92,231,0.06));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:rgba(162,155,254,0.85);border:1px solid rgba(108,92,231,0.2);">放松</div>
+            <div style="position:absolute;left:204px;top:62px;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,rgba(253,121,168,0.2),rgba(253,121,168,0.06));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:rgba(253,121,168,0.8);border:1px solid rgba(253,121,168,0.2);">队友</div>
+            <div style="position:absolute;left:60px;top:56px;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle,rgba(253,203,110,0.2),rgba(253,203,110,0.06));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:rgba(253,203,110,0.8);border:1px solid rgba(253,203,110,0.18);">科目三</div>
+            <div style="position:absolute;left:162px;top:290px;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,rgba(99,110,114,0.3),rgba(99,110,114,0.1));display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#b2bec3;border:1px solid rgba(99,110,114,0.2);">无聊</div>
+            <div style="position:absolute;left:60px;top:230px;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,rgba(0,184,148,0.2),rgba(0,184,148,0.06));display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:600;color:rgba(0,184,148,0.8);border:1px solid rgba(0,184,148,0.15);">哈基米</div>
+            <!-- 第四圈（小） -->
+            <div style="position:absolute;left:8px;top:110px;width:42px;height:42px;border-radius:50%;background:rgba(225,112,85,0.12);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:rgba(225,112,85,0.75);border:1px solid rgba(225,112,85,0.15);">脑腐</div>
+            <div style="position:absolute;left:282px;top:224px;width:44px;height:44px;border-radius:50%;background:rgba(108,92,231,0.1);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:rgba(162,155,254,0.7);border:1px solid rgba(108,92,231,0.12);">压力</div>
+            <div style="position:absolute;left:330px;top:120px;width:42px;height:42px;border-radius:50%;background:rgba(253,121,168,0.08);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:rgba(253,121,168,0.7);border:1px solid rgba(253,121,168,0.12);">公主</div>
+            <div style="position:absolute;left:20px;top:46px;width:40px;height:40px;border-radius:50%;background:rgba(255,107,107,0.1);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:rgba(255,107,107,0.7);border:1px solid rgba(255,107,107,0.12);">菜</div>
+            <div style="position:absolute;left:116px;top:296px;width:42px;height:42px;border-radius:50%;background:rgba(253,203,110,0.08);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:500;color:rgba(253,203,110,0.65);border:1px solid rgba(253,203,110,0.1);">看不懂</div>
+            <div style="position:absolute;left:260px;top:72px;width:38px;height:38px;border-radius:50%;background:rgba(0,206,201,0.08);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:500;color:rgba(0,206,201,0.65);border:1px solid rgba(0,206,201,0.1);">陪伴</div>
+            <div style="position:absolute;left:14px;top:210px;width:40px;height:40px;border-radius:50%;background:rgba(255,107,107,0.08);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:500;color:rgba(255,107,107,0.6);border:1px solid rgba(255,107,107,0.1);">等待</div>
+            <div style="position:absolute;left:330px;top:178px;width:38px;height:38px;border-radius:50%;background:rgba(0,184,148,0.08);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:500;color:rgba(0,184,148,0.6);border:1px solid rgba(0,184,148,0.1);">刀盾</div>
+            <div style="position:absolute;left:220px;top:292px;width:40px;height:40px;border-radius:50%;background:rgba(225,112,85,0.08);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:500;color:rgba(225,112,85,0.6);border:1px solid rgba(225,112,85,0.1);">芭比Q</div>
+            <div style="position:absolute;left:296px;top:278px;width:36px;height:36px;border-radius:50%;background:rgba(108,92,231,0.06);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;color:rgba(162,155,254,0.55);border:1px solid rgba(108,92,231,0.08);">i人</div>
+            <div style="position:absolute;left:336px;top:240px;width:36px;height:36px;border-radius:50%;background:rgba(253,203,110,0.06);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;color:rgba(253,203,110,0.55);border:1px solid rgba(253,203,110,0.08);">鸡爪流</div>
+          </div>
+        </div>
+        <div style="text-align:center; font-size:9.5px; color:rgba(255,255,255,0.2); margin-top:2px;">气泡大小 = 低龄用户讨论中出现频率</div>
+      </div>
+    </div>
+  </div>
+
+  <style>@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }</style>
+  <div class="slide-number">05 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 3.5: REPLAYABILITY DEFENSE (复玩性保障机制) ==================== -->
+<section class="slide" id="slide-replayability">
+  <span class="section-tag">PART 02 - 复玩性保障</span>
+
+  <!-- 顶部核心观点横幅 -->
+  <div style="background:linear-gradient(135deg, rgba(0,184,148,0.15), rgba(108,92,231,0.1)); border:1px solid rgba(0,184,148,0.25); border-radius:14px; padding:14px 32px; text-align:center; max-width:1200px; width:100%; margin-bottom:16px;">
+    <div style="font-size:13px; color:rgba(255,255,255,0.75); margin-bottom:6px; padding-bottom:6px; border-bottom:1px dashed rgba(255,255,255,0.12);">
+      <span style="color:var(--gold); font-weight:700;">【承上一页】</span>
+      讲完梗生态，一个绕不开的问题是 &mdash; <strong style="color:#fff;">梗迭代这么快，复玩性怎么保证？</strong>
+    </div>
+    <div style="font-size:17px; font-weight:700; color:#fff; letter-spacing:0.3px;">应对"梗迭代快、梗数量有限"的<span style="color:var(--green);">三道防线</span> &mdash; <span style="color:var(--gold);">梗IP池复活性</span> &times; <span style="color:var(--accent);">联动机制衍生</span> &times; <span style="color:var(--cyan);">底层护城河兜底</span></div>
+    <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:5px;">梗文化负责吸引，机制负责留存 &mdash; 复玩性不依赖单一梗的热度</div>
+  </div>
+
+  <!-- 三列对比表 -->
+  <table class="compare-table" style="margin-bottom:16px; max-width:1200px;">
+    <tr>
+      <th style="width:14%;">维度</th>
+      <th style="width:28%;">常见疑问</th>
+      <th style="width:30%;">设计应对</th>
+      <th style="width:28%;">支撑论据</th>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--gold);">梗生命周期</strong></td>
+      <td>梗热度迭代较快<br>新梗容易快速过气</td>
+      <td><strong style="color:var(--green);">梗IP池设计</strong>：热梗入池后沉淀为可翻热资产</td>
+      <td>嘉豪梗翻热现象<br>B站老番鬼畜常青<br>朋友圈专属梗长周期</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent);">梗存量</strong></td>
+      <td>有趣的梗数量看起来有限</td>
+      <td><strong style="color:var(--green);">普通×梗联动机制</strong>：梗之间的组合带来量级放大的设计空间</td>
+      <td>热梗衍生化沉淀为元梦专属梗池<br>梗不再是单向消耗品</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--cyan);">运营成本</strong></td>
+      <td>持续更新可能带来工作量压力</td>
+      <td><strong style="color:var(--green);">分级更新池</strong>：核心梗星能保持稳定 + 限定梗星能做赛季更新</td>
+      <td>对标王者皮肤限定池节奏<br>节奏可控</td>
+    </tr>
+  </table>
+
+  <!-- 底层护城河兜底（三色卡片） -->
+  <div style="font-size:13px; color:rgba(255,255,255,0.55); margin-bottom:10px; max-width:1200px; width:100%; text-align:center;">
+    即便梗本身波动，<strong style="color:#fff;">P04讲过的海斗底层护城河</strong>仍然在兜底：
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; max-width:1200px; width:100%; margin-bottom:12px;">
+    <div style="background:rgba(0,206,201,0.06); border:1px solid rgba(0,206,201,0.2); border-radius:12px; padding:12px 16px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="font-size:22px;">&#x1F50D;</span>
+        <h4 style="font-size:13px; color:var(--cyan); font-weight:700;">筛选机制</h4>
+      </div>
+      <p style="font-size:11.5px; color:rgba(255,255,255,0.6); line-height:1.55;">即使某个梗星能过气，长线筛选也会把表现好的沉淀下来</p>
+    </div>
+    <div style="background:rgba(253,203,110,0.06); border:1px solid rgba(253,203,110,0.2); border-radius:12px; padding:12px 16px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="font-size:22px;">&#x1F3AF;</span>
+        <h4 style="font-size:13px; color:var(--gold); font-weight:700;">推荐算法</h4>
+      </div>
+      <p style="font-size:11.5px; color:rgba(255,255,255,0.6); line-height:1.55;">算法本身不依赖梗热度，Build成型感对全年龄用户稳定</p>
+    </div>
+    <div style="background:rgba(253,121,168,0.06); border:1px solid rgba(253,121,168,0.2); border-radius:12px; padding:12px 16px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="font-size:22px;">&#x1F465;</span>
+        <h4 style="font-size:13px; color:var(--accent); font-weight:700;">低龄用户粘性</h4>
+      </div>
+      <p style="font-size:11.5px; color:rgba(255,255,255,0.6); line-height:1.55;">11-15岁对"朋友圈专属梗"的留恋大于对"全网热梗"的追逐</p>
+    </div>
+  </div>
+
+  <!-- 底部 hero sentence -->
+  <div style="max-width:1100px; width:100%; background:rgba(108,92,231,0.08); border:1.5px solid rgba(108,92,231,0.3); border-radius:14px; padding:12px 28px; text-align:center;">
+    <div style="font-size:14px; color:#fff; font-weight:600; line-height:1.6;">
+      <span style="color:var(--accent);">梗文化吸引用户进来</span>，<span style="color:var(--cyan);">筛选机制和推荐算法让他们留下</span>
+      <span style="font-size:12px; color:var(--green); background:rgba(0,184,148,0.15); padding:2px 8px; border-radius:8px; margin-left:6px; font-weight:500;">论证闭环完成</span><br>
+      <span style="font-size:12px; color:rgba(255,255,255,0.5); font-weight:400;">&rarr; 前面的"为什么"已经讲完，接下来进入具体设计</span>
+    </div>
+  </div>
+
+  <div class="slide-number">06 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 4: SYSTEM MECHANISM ==================== -->
+<section class="slide" id="slide-4">
+  <span class="section-tag">PART 03 - 系统机制</span>
+  <h2>星能系统：普通星能 + 趣味星能 + 羁绊联动</h2>
+  <p style="text-align:center; margin-bottom:22px;">趣味星能不替代普通星能，而是在其之外的<strong style="color:var(--green);">独立附加层</strong></p>
+
+  <!-- 普通星能说明 -->
+  <div class="sys-box">
+    <h3>&#x1F3B2; 普通星能 &mdash; 与原大乱斗海克斯符文类似</h3>
+    <p style="font-size:12px; color:rgba(255,255,255,0.55); margin-bottom:10px;">保留原版核心框架（死亡后选择、2选1），但品质获取方式调整为随机刷新：</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+      <div class="sys-step">
+        <div class="ss-icon">&#x1F480;</div>
+        <div class="ss-label">死亡后选择</div>
+        <div class="ss-detail">每次死亡复活时<br>弹出2选1界面</div>
+      </div>
+      <div class="sys-step">
+        <div class="ss-icon">&#x1F4CA;</div>
+        <div class="ss-label">等级解锁次数</div>
+        <div class="ss-detail">Lv3第1次选取<br>Lv6第2次 / Lv9第3次</div>
+      </div>
+      <div class="sys-step" style="background:rgba(253,203,110,0.08); border:1px solid rgba(253,203,110,0.15);">
+        <div class="ss-icon">&#x1F3B0;</div>
+        <div class="ss-label" style="color:var(--gold);">品质随机刷新</div>
+        <div class="ss-detail">每次选取品质完全随机<br>Lv3也可能刷出棱彩！</div>
+      </div>
+      <div class="sys-step">
+        <div class="ss-icon">&#x1F504;</div>
+        <div class="ss-label">独立刷新</div>
+        <div class="ss-detail">每个槽位独立<br>不影响其他</div>
+      </div>
+    </div>
+    <p style="font-size:11px; color:rgba(255,255,255,0.35);">品级方向：白银=基础属性提升 / 黄金=独特被动效果 / 棱彩=改变玩法的强大效果 &nbsp;&nbsp;|&nbsp;&nbsp;"每次死亡弹出选择时，会不会刷到棱彩？"的悬念本身就是乐趣</p>
+  </div>
+
+  <!-- 趣味星能说明 -->
+  <div class="sys-box">
+    <h3>&#x2B50; 趣味星能 &mdash; 独立附加层，每局额外获得</h3>
+    <p style="font-size:12px; color:rgba(255,255,255,0.55); margin-bottom:10px;">每局开局阶段，在选角完成后、首次进入战场前，额外出现一次趣味星能的选择</p>
+    <div class="sys-flow">
+      <div class="sys-step" style="background:rgba(0,184,148,0.1); border:1px solid rgba(0,184,148,0.2);">
+        <div class="ss-icon">&#x2B50;</div>
+        <div class="ss-label" style="color:var(--green); font-weight:700;">趣味星能 2选1</div>
+        <div class="ss-detail">开局阶段<br>不占普通槽位</div>
+      </div>
+      <div class="sys-arrow">+</div>
+      <div class="sys-step">
+        <div class="ss-icon">&#x1F3B2;</div>
+        <div class="ss-label">普通星能 &times;3</div>
+        <div class="ss-detail">死亡后选择<br>白银/黄金/棱彩</div>
+      </div>
+      <div class="sys-arrow">=</div>
+      <div class="sys-step" style="background:rgba(253,203,110,0.1); border:1px solid rgba(253,203,110,0.2);">
+        <div class="ss-icon">&#x1F4A5;</div>
+        <div class="ss-label" style="color:var(--gold); font-weight:700;">羁绊触发？</div>
+        <div class="ss-detail">若趣味+普通匹配<br>额外联动效果</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:14px;">&#x2696;&#xFE0F; 趣味星能平衡机制 &mdash; 避免"最优解"</h3>
+    <div class="balance-grid" style="margin-top:8px;">
+      <div class="balance-card">
+        <h4>&#x1F3B2; 随机池+加权轮换</h4>
+        <p>每局2选1从9个趣味星能中随机抽取，且近3局已选过的星能权重显著降低。避免"每局都选老六"的固化策略，鼓励体验不同星能。</p>
+        <div class="bc-tag">防固化</div>
+      </div>
+      <div class="balance-card">
+        <h4>&#x1F4CA; 趣味星能不影响胜率</h4>
+        <p>所有趣味星能的战斗数值贡献控制在相近水平。核心差异在于"体验方式"而非"强度"：显眼包靠死亡得分，老六靠偷袭，公主靠治疗 &mdash; 路径不同，收益等价。</p>
+        <div class="bc-tag">等价路径</div>
+      </div>
+      <div class="balance-card">
+        <h4>&#x1F517; 羁绊随机性</h4>
+        <p>羁绊联动需要趣味星能与特定普通星能匹配才能触发。由于普通星能也是随机2选1，"能不能凑到羁绊"本身就有盲盒感 &mdash; 凑到是惊喜，凑不到也不亏。</p>
+        <div class="bc-tag">随机惊喜</div>
+      </div>
+      <div class="balance-card">
+        <h4>&#x1F3AF; 场景适配差异</h4>
+        <p>不同趣味星能在不同对局环境下各有优势：脑腐咒语适合追击战、科目三适合团战中场、芭比Q在劣势局价值更高。没有"万能最优解"，只有"当前局最合适的"。</p>
+        <div class="bc-tag">场景多元</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-number">07 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 5: AUGMENTS 1-3 ==================== -->
+<section class="slide" id="slide-5">
+  <span class="section-tag">PART 04 - 趣味型星能设计</span>
+  <h2>9款趣味型星能 (1/3)</h2>
+  <p style="text-align:center; margin-bottom:22px;">身份标签类 &mdash; "一个词定义我是谁"</p>
+
+  <div class="aug-grid">
+    <!-- 显眼包 -->
+    <div class="aug-card c-green">
+      <div class="meme-img mi-green">&#x1F929;&#x2728;&#x1F4A5;<span class="meme-tag">博物馆显眼包 / 综艺名场面</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F31F;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">显眼包模式</div>
+          <div class="aug-meme">梗源：显眼包（2023-2026持续）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">激活后角色自带闪光特效+体型增大，敌方视野中被高亮标注。<strong style="color:var(--green);">被击杀时播放随机搞笑动画</strong>（旋转摔倒/弹出星星/原地爆炸彩带），附近敌人被"看表演"效果短暂减速。承受伤害略微增加，但<strong style="color:var(--gold);">每次死亡全队加分</strong>，死亡不计负面统计。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似LOL <strong style="color:var(--cyan);">塞恩被动"光荣一死"</strong> &mdash; 死后反而进入狂暴状态。显眼包则是"死得越搞笑，贡献越大"。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：塞恩被动 &middot; 死亡=新形态</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text">"被击杀"从纯负反馈变为<strong style="color:var(--gold);">表演型正反馈</strong> &mdash; 满足"被看见"需求，让操作差的玩家也有独特贡献方式。</div>
+      </div>
+      <div class="aug-insight">"被看见"需求 &middot; 《00后社交》高社交需求+低自我效能</div>
+    </div>
+
+    <!-- 老六 -->
+    <div class="aug-card c-purple">
+      <div class="meme-img mi-purple">&#x1F575;&#xFE0F;&#x1F4A8;&#x1F440;<span class="meme-tag">CSGO蹲角落 / "服了你个老六"</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F575;&#xFE0F;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">老六潜行</div>
+          <div class="aug-meme">梗源：你个老六（中小学生口头禅NO.1）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">激活后进入完全隐身+大幅加速状态，期间无法攻击但可穿过敌人身体。<strong style="color:var(--secondary);">隐身结束首次攻击伤害翻倍</strong>（偷袭爆发）。被范围技命中会立刻现身+短暂眩晕（"被反阴"的惩罚），鼓励对方用范围技防老六。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似LOL <strong style="color:var(--cyan);">伊芙琳被动"恶魔魅影"</strong> &mdash; 永久隐身+接近后爆发，但显眼包简化为主动技能，更易操作。也像王者荣耀<strong style="color:var(--cyan);">兰陵王大招</strong>的隐身突袭感。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：伊芙琳被动 / 兰陵王大招</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text">将"老六"从贬义标签变为<strong style="color:var(--gold);">合法游戏策略</strong> &mdash; 操作不强的玩家通过"比你聪明"获得成就感，回应"不靠正面操作也能赢"的多元成就路径。</div>
+      </div>
+      <div class="aug-insight">"以弱胜强" &middot; 《不确定时代》反优绩主义</div>
+    </div>
+
+    <!-- i人e人 -->
+    <div class="aug-card c-blue">
+      <div class="meme-img mi-blue">&#x1F910;&nbsp;&#x2194;&#xFE0F;&nbsp;&#x1F973;<span class="meme-tag">MBTI人格测试 / "i人装e人"</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F465;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">i人隐身 / e人狂欢</div>
+          <div class="aug-meme">梗源：MBTI人格标签（深入中学生社交）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text"><strong style="color:var(--blue);">双形态2选1</strong>，选择即自我表达：<br>
+        &bull; <strong>i人模式</strong>：半透明+无脚步声+技能CD降低，适合潜行后排<br>
+        &bull; <strong>e人模式</strong>：高亮+攻击范围扩大+攻击时自动发鼓励表情buff队友，适合前排社交</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似LOL <strong style="color:var(--cyan);">凯隐"暗裔/影"双形态选择</strong> &mdash; 根据玩法偏好选择完全不同的形态。i人/e人同理，但选择依据是"你是什么人"而非"敌方阵容"。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：凯隐双形态选择</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text">让现实社交身份映射进游戏 &mdash; "我选i人因为我就是i人"。选择本身就是一次<strong style="color:var(--gold);">社交身份表达</strong>，不同性格有不同最优玩法。</div>
+      </div>
+      <div class="aug-insight">标签化自我认知 &middot; 《00后社交》渐进式社交链路</div>
+    </div>
+  </div>
+  <div class="slide-number">08 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 6: AUGMENTS 4-6 ==================== -->
+<section class="slide" id="slide-6">
+  <span class="section-tag">PART 04 - 趣味型星能设计</span>
+  <h2>9款趣味型星能 (2/3)</h2>
+  <p style="text-align:center; margin-bottom:22px;">荒诞/整活类 &mdash; "越离谱越快乐"</p>
+
+  <div class="aug-grid">
+    <!-- 科目三 -->
+    <div class="aug-card c-pink">
+      <div class="meme-img mi-pink">&#x1F483;&#x1F57A;&#x1F3B6;<span class="meme-tag">广西科目三魔性舞蹈 / 海底捞/蛋仔</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F483;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">科目三狂欢</div>
+          <div class="aug-meme">梗源：广西社牛舞（蛋仔/元梦大量UGC）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">激活后角色原地跳科目三舞蹈，舞蹈期间<strong style="color:var(--accent);">免疫所有伤害</strong>。范围内所有角色（含敌方）被<strong style="color:var(--accent);">强制跟跳</strong>（不可控但也免伤）。舞蹈结束所有参与者获得短暂加速。若成功让多人同跳，触发"全场派对"特效全员加分。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">直接对标元梦之星<strong style="color:var(--cyan);">凌音大招"音浪共振"</strong> &mdash; 对范围内敌人施加强制跳舞效果，敌人在控制期间无法操作但也不受伤害。科目三星能在此基础上扩展为"全场参与"的派对机制。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：元梦之星凌音大招 &middot; 强制跳舞控制</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text"><strong style="color:var(--gold);">纯社交型星能</strong> &mdash; 不增强战斗力，而是制造"全场暂停打架、一起搞怪"的共玩时刻。通过荒诞的共同体验自然建立社交连接。</div>
+      </div>
+      <div class="aug-insight">集体仪式 &middot; 《沉浸式发癫》社交驱动型RP</div>
+    </div>
+
+    <!-- 脑腐 -->
+    <div class="aug-card c-orange">
+      <div class="meme-img mi-orange">&#x1F6BD;&#x1F9DF;&#x1F47E;<span class="meme-tag">Italian Brainrot / Skibidi Toilet</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F9DF;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">脑腐咒语</div>
+          <div class="aug-meme">梗源：外国山海经（小学生社交货币）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">激活后角色念一段脑腐咒语（随机外国山海经角色名音频），念完后<strong style="color:var(--orange);">在目标位置召唤一只"脑腐生物"</strong>。脑腐生物自动追击最近敌人，造成持续减速+伤害。外观完全随机（耐克鞋鲨鱼/仙人掌象/发光马桶等） &mdash; 每次召唤都是惊喜。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似LOL <strong style="color:var(--cyan);">约里克被动"牧魂人"</strong>召唤雾行者自动追击敌人 + 约里克大招召唤"少女"持续跟踪。但脑腐咒语的召唤物外观完全随机 &mdash; 让"召唤谁"本身成为笑点和社交话题。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：约里克 牧魂人 &middot; 召唤追踪生物（但随机外观）</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text">核心不是战斗力而是<strong style="color:var(--gold);">惊喜+UGC传播</strong> &mdash; 截图分享荒诞生物形成天然传播。回应"把玩家的梗搬进游戏，游戏就成为梗的传播工具"。</div>
+      </div>
+      <div class="aug-insight">荒诞=快乐 &middot; 《年度复盘》玩梗传播基因</div>
+    </div>
+
+    <!-- 我的刀盾 -->
+    <div class="aug-card c-steel">
+      <div class="meme-img mi-steel">&#x1F436;&#x1F6E1;&#xFE0F;&#x1F5E1;&#xFE0F;<span class="meme-tag">"What the dog doing" 空耳梗</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F6E1;&#xFE0F;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">我的刀盾</div>
+          <div class="aug-meme">梗源：What the dog doing空耳（抖音10亿+播放）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">激活后角色高喊"我的刀盾！"（空耳音效），获得<strong style="color:#b2bec3;">正面能量盾牌+能量短刀</strong>。盾牌免疫前方伤害（背后仍可受伤，需站位意识），短刀大幅增强近战伤害，同时<strong style="color:#b2bec3;">嘲讽附近敌人</strong>迫使其攻击你。盾牌吸收足够伤害后破碎爆炸，对周围敌人造成范围伤害。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似LOL <strong style="color:var(--cyan);">潘森E"神佑冲锋"</strong>的正面举盾格挡所有伤害 + LOL <strong style="color:var(--cyan);">拉莫斯E"嘲讽翻刺"</strong>强制敌人向你普攻。"我的刀盾"将两者合一 &mdash; 举盾+嘲讽+近战爆发，且带空耳梗音效。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：潘森E举盾免伤 + 拉莫斯E嘲讽</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text"><strong style="color:var(--gold);">把空耳玩笑变成真&middot;刀盾</strong> &mdash; "游戏认真对待你的梗"产生强烈认同感。搞笑+英雄感完美结合，鼓励"站出来保护队友"。</div>
+      </div>
+      <div class="aug-insight">空耳赋义 &middot; 《年度复盘》整活乐子文化</div>
+    </div>
+  </div>
+  <div class="slide-number">09 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 7: AUGMENTS 7-9 ==================== -->
+<section class="slide" id="slide-7">
+  <span class="section-tag">PART 04 - 趣味型星能设计</span>
+  <h2>9款趣味型星能 (3/3)</h2>
+  <p style="text-align:center; margin-bottom:22px;">情感代偿/绝地翻盘类 &mdash; "失败也有正反馈"</p>
+
+  <div class="aug-grid">
+    <!-- 公主 -->
+    <div class="aug-card c-gold">
+      <div class="meme-img mi-gold">&#x1F478;&#x1F49C;&#x1F3CE;&#xFE0F;<span class="meme-tag">"公主请上车" / 罗马假日梗</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F451;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">公主护盾</div>
+          <div class="aug-meme">梗源：公主请XX（反差萌自嘲2024-2026）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">激活后获得大型金色护盾，<strong style="color:var(--gold);">护盾期间免疫所有伤害</strong>，角色播放"公主挥手"动画。护盾期间无法攻击（"公主不打人"）但可移动。护盾破碎时向周围释放治愈波，<strong style="color:var(--gold);">为范围内队友回复生命</strong>。在"快死"时按下=优雅地自保+救队友。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似LOL <strong style="color:var(--cyan);">塔里克大招"星界祝福"</strong>的团队无敌+王者荣耀<strong style="color:var(--cyan);">蔡文姬大招</strong>范围回血。但公主护盾以"自我保护→破碎治疗队友"的顺序，让保护自己=帮助团队。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：塔里克团队无敌 + 蔡文姬范围回血</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text">"快死了"&rarr;"优雅地保护自己和队友" &mdash; 将濒死恐惧转化为<strong style="color:var(--gold);">仪式感正反馈</strong>。对应"失败也有正反馈"的核心设计理念。</div>
+      </div>
+      <div class="aug-insight">仪式感代偿 &middot; 《共鸣与逃离》56.3%愿为情绪价值付费</div>
+    </div>
+
+    <!-- 芭比Q -->
+    <div class="aug-card c-red">
+      <div class="meme-img mi-red">&#x1F525;&#x1F356;&#x1F4A3;<span class="meme-tag">"完了芭比Q了" / BBQ=火化=完蛋</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F525;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">芭比Q翻盘</div>
+          <div class="aug-meme">梗源：芭比Q了（"完蛋了"荒诞化表达）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">被动触发：生命值极低时自动进入"芭比Q"状态 &mdash; 音效+全身燃烧特效。短暂窗口内<strong style="color:var(--red);">伤害暴增+加速冲刺</strong>，窗口结束后无论如何必定倒下。芭比Q期间获得的击杀/助攻积分翻倍。每局限定触发次数，不可主动控制触发时机。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似LOL <strong style="color:var(--cyan);">蛮王大招"无尽怒意"</strong>的濒死不死（低血量免死数秒继续输出）。芭比Q在此基础上增加了"伤害暴增"和"窗口结束后必死" &mdash; 不是"保命苟活"而是"以命换高光"的极致爆发。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：蛮王大招 &middot; 濒死=最强时刻（但必换一死）</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text">"等死绝望"&rarr;"最后的高光时刻" &mdash; 把最大的负反馈（濒死）变成<strong style="color:var(--gold);">最精彩的正反馈（翻盘爆发）</strong>。用荒诞消解失败，完美对应"低龄用户对负反馈耐受力显著下降"。</div>
+      </div>
+      <div class="aug-insight">荒诞消解失败 &middot; 失败也有正反馈+负反馈耐受力下降</div>
+    </div>
+
+    <!-- 哈基米 -->
+    <div class="aug-card c-teal">
+      <div class="meme-img mi-teal">&#x1F431;&#x1F36F;&#x1F495;<span class="meme-tag">哈基米猫咪 / 日语蜂蜜空耳</span></div>
+      <div class="aug-header">
+        <div class="aug-emoji">&#x1F431;</div>
+        <div class="aug-title-group">
+          <div class="aug-name">哈基米跟班</div>
+          <div class="aug-meme">梗源：哈基米（日语蜂蜜音译&rarr;可爱称呼）</div>
+        </div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">核心机制</div>
+        <div class="aug-text">召唤一只随机外观（猫/狗/兔/仓鼠）的小伙伴<strong style="color:var(--cyan);">全局跟随</strong>。哈基米自动拾取附近掉落物，持续少量回血。无法被击杀，你倒下时在身边"哭泣"，你复活后继续跟随。队友路过时哈基米会发出可爱叫声，形成天然的"破冰提示"。</div>
+      </div>
+      <div class="aug-section">
+        <div class="aug-label">经典技能类比</div>
+        <div class="aug-text">类似王者荣耀<strong style="color:var(--cyan);">瑶大招"独立兮山之上"</strong>的附身跟随+护盾保护机制，以及LOL <strong style="color:var(--cyan);">璐璐大招"狂野生长"</strong>为队友增加护盾和生命值。但哈基米是纯情感伴侣 &mdash; 战斗力温和，核心价值是"一直陪着你"。</div>
+      </div>
+      <div class="aug-ref-skill">&#x1F3AE; 类比：瑶附身跟随 + 璐璐守护增益</div>
+      <div class="aug-section">
+        <div class="aug-label">设计意义</div>
+        <div class="aug-text"><strong style="color:var(--gold);">纯情感型星能</strong> &mdash; 在混乱战场中始终有一个可爱伙伴陪着你。对应"63%用户情感可由虚拟宠物承载"，满足"不仅需要赢，更需要被陪伴"。</div>
+      </div>
+      <div class="aug-insight">安全依恋 &middot; 《00后社交》63%情感可由虚拟宠物承载</div>
+    </div>
+  </div>
+  <div class="slide-number">10 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 8: BOND SYSTEM (NEW POSITION) ==================== -->
+<section class="slide" id="slide-8">
+  <span class="section-tag">PART 05 - 羁绊联动</span>
+  <h2>当趣味遇上硬核 &mdash; 羁绊联动系统</h2>
+  <p style="text-align:center; margin-bottom:24px;">
+    趣味星能与特定普通星能搭配触发额外效果 &mdash; <strong style="color:var(--gold);">"整活"和"变强"可以兼得</strong>
+  </p>
+
+  <div class="sys-box" style="margin-bottom:18px;">
+    <h3>&#x1F517; 羁绊触发逻辑</h3>
+    <p style="font-size:12px; color:rgba(255,255,255,0.55); margin-bottom:12px;">
+      开局选定趣味星能后，若在后续死亡选择普通星能时<strong style="color:var(--gold);">恰好刷到</strong>对应匹配项，羁绊自动激活。<br>
+      由于普通星能也是随机2选1，"能不能凑到"本身就有盲盒感 &mdash; 凑到是惊喜加成，凑不到也不影响基础体验。
+    </p>
+    <div class="sys-flow" style="margin-bottom:14px;">
+      <div class="sys-step" style="background:rgba(0,184,148,0.1); border:1px solid rgba(0,184,148,0.2);">
+        <div class="ss-icon">&#x2B50;</div>
+        <div class="ss-label" style="color:var(--green);">开局选定趣味星能</div>
+      </div>
+      <div class="sys-arrow">&rarr;</div>
+      <div class="sys-step">
+        <div class="ss-icon">&#x1F480;</div>
+        <div class="ss-label">死亡后选普通星能</div>
+      </div>
+      <div class="sys-arrow">&rarr;</div>
+      <div class="sys-step" style="background:rgba(253,203,110,0.1); border:1px solid rgba(253,203,110,0.2);">
+        <div class="ss-icon">&#x1F4A5;</div>
+        <div class="ss-label" style="color:var(--gold);">匹配？羁绊激活！</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sys-box">
+    <h3>&#x1F517; 9款趣味星能的羁绊联动</h3>
+    <p style="font-size:11px; color:rgba(255,255,255,0.45); margin-bottom:10px;">类似自走棋羁绊 &mdash; 搭配出的额外效果，让策略深度与整活快感并存</p>
+    <div class="bond-row"><span class="bond-aug">&#x1F31F; 显眼包</span><span class="bond-plus">+</span><span class="bond-normal">坚韧不屈(承伤降低)</span><span class="bond-result">&rarr; "铁皮显眼包"：死亡动画更夸张 + 每次被杀全队加分翻倍</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F575;&#xFE0F; 老六</span><span class="bond-plus">+</span><span class="bond-normal">暴击之刃(暴击UP)</span><span class="bond-result">&rarr; "完美暗杀"：隐身偷袭变为必暴击 + 额外眩晕</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F465; i/e人</span><span class="bond-plus">+</span><span class="bond-normal">社交达人(队伍增益)</span><span class="bond-result">&rarr; "人格觉醒"：i人更深隐身 / e人更强光环</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F483; 科目三</span><span class="bond-plus">+</span><span class="bond-normal">加速跑鞋(移速UP)</span><span class="bond-result">&rarr; "光速科三"：舞蹈后全员加速翻倍 + 持续延长</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F9DF; 脑腐</span><span class="bond-plus">+</span><span class="bond-normal">法力风暴(技能强化)</span><span class="bond-result">&rarr; "超级脑腐"：召唤2只脑腐生物 + 巨大化</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F6E1;&#xFE0F; 刀盾</span><span class="bond-plus">+</span><span class="bond-normal">坚韧不屈(承伤降低)</span><span class="bond-result">&rarr; "真&middot;刀盾"：嘲讽期间承受伤害转化为护盾值</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F451; 公主</span><span class="bond-plus">+</span><span class="bond-normal">治愈之泉(回血增强)</span><span class="bond-result">&rarr; "公主加冕"：治疗量翻倍 + 附加减伤光环</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F525; 芭比Q</span><span class="bond-plus">+</span><span class="bond-normal">终极爆发(大招强化)</span><span class="bond-result">&rarr; "史诗Q"：芭比Q期间大招无冷却 + 范围扩大</span></div>
+    <div class="bond-row"><span class="bond-aug">&#x1F431; 哈基米</span><span class="bond-plus">+</span><span class="bond-normal">回春之风(持续回血)</span><span class="bond-result">&rarr; "双倍萌"：变为双宠 + 回复效果叠加</span></div>
+  </div>
+  <div class="slide-number">11 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 9: FORMULA + PATHS ==================== -->
+<section class="slide" id="slide-9">
+  <span class="section-tag">PART 06 - 设计底层逻辑</span>
+  <h2>设计公式 + 多元成就路径</h2>
+  <p style="text-align:center; margin-bottom:30px;">趣味型星能不只是"好玩"，更是"多元成就路径"的具体落地</p>
+
+  <div class="formula-box" style="margin-bottom:30px;">
+    <div class="formula-text">趣味型星能设计公式</div>
+    <div class="formula-parts">
+      <div class="formula-part">
+        <div class="fp-icon">&#x1F310;</div>
+        <div class="fp-label">流行梗<br><span style="font-size:10px; color:rgba(255,255,255,0.4);">文化共鸣</span></div>
+      </div>
+      <div class="formula-times">&times;</div>
+      <div class="formula-part">
+        <div class="fp-icon">&#x1F9E0;</div>
+        <div class="fp-label">心理映射<br><span style="font-size:10px; color:rgba(255,255,255,0.4);">深层需求</span></div>
+      </div>
+      <div class="formula-times">&times;</div>
+      <div class="formula-part">
+        <div class="fp-icon">&#x1F3AE;</div>
+        <div class="fp-label">游戏机制<br><span style="font-size:10px; color:rgba(255,255,255,0.4);">可玩性</span></div>
+      </div>
+      <div class="formula-times">=</div>
+      <div class="formula-part" style="background:rgba(0,184,148,0.15); border:1px solid rgba(0,184,148,0.3);">
+        <div class="fp-icon">&#x2B50;</div>
+        <div class="fp-label" style="color:var(--green); font-weight:700;">趣味星能</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="color:var(--gold); text-align:center; margin-bottom:14px;">5种成就路径 &mdash; 不只有"输出"才算赢</h3>
+  <p style="text-align:center; font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:16px;">
+    对应洞察：《不确定时代》反优绩主义 + 《共鸣与逃离》多元成就路径
+  </p>
+
+  <table class="path-table">
+    <tr>
+      <th style="width:16%;">成就路径</th>
+      <th style="width:30%;">对应星能</th>
+      <th style="width:18%;">玩法风格</th>
+      <th style="width:36%;">核心爽点</th>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--red);">&#x2694;&#xFE0F; 输出型</strong></td>
+      <td>芭比Q翻盘 / 老六潜行</td>
+      <td>冲锋 / 偷袭</td>
+      <td>高爆发击杀的成就感</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--green);">&#x1F3AD; 表演型</strong></td>
+      <td>显眼包模式 / 科目三狂欢</td>
+      <td>整活 / 社交</td>
+      <td>被看见、制造欢笑、团队加分</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--secondary);">&#x1F575;&#xFE0F; 策略型</strong></td>
+      <td>i人隐身 / 老六潜行</td>
+      <td>潜行 / 伏击</td>
+      <td>"比你聪明"的策略满足</td>
+    </tr>
+    <tr>
+      <td><strong style="color:#b2bec3;">&#x1F6E1;&#xFE0F; 坦克型</strong></td>
+      <td>我的刀盾 / 公主护盾 / e人狂欢</td>
+      <td>保护 / 嘲讽</td>
+      <td>帮助队友+英雄感+治疗量</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--gold);">&#x1F33F; 佛系型</strong></td>
+      <td>哈基米跟班 / 脑腐咒语</td>
+      <td>养成 / 乐子</td>
+      <td>享受过程本身的快乐+陪伴感</td>
+    </tr>
+  </table>
+
+  <h3 style="color:var(--green); text-align:center; margin-top:26px; margin-bottom:12px;">&#x1F3C6; 趣味星能积分 + 称号成长系统</h3>
+  <p style="text-align:center; font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:14px;">
+    选取趣味星能 &rarr; 使用表现获得积分 &rarr; 累计解锁专属称号 &mdash; "整活也有成长线"
+  </p>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:1050px; width:100%; margin-bottom:14px;">
+    <div class="card" style="border-left:3px solid var(--green); padding:16px 18px;">
+      <h3 style="font-size:14px; color:var(--green); margin-bottom:6px;">&#x1F4CA; 积分获取规则</h3>
+      <p style="font-size:12px;">积分不取决于胜负，而取决于"有没有玩出这个星能的灵魂"：</p>
+      <div style="font-size:11px; color:rgba(255,255,255,0.55); margin-top:6px; line-height:1.7;">
+        &bull; 显眼包：搞笑死亡次数 &nbsp;&bull; 老六：成功偷袭次数<br>
+        &bull; 科目三：带动全场跳舞人数 &nbsp;&bull; 公主护盾：保护队友次数<br>
+        &bull; 哈基米：全局存活时间 &nbsp;&bull; 芭比Q：翻盘击杀数
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--gold); padding:16px 18px;">
+      <h3 style="font-size:14px; color:var(--gold); margin-bottom:6px;">&#x1F396;&#xFE0F; 称号成长线（每款星能独立）</h3>
+      <div style="font-size:11px; color:rgba(255,255,255,0.55); line-height:1.8;">
+        <strong style="color:rgba(255,255,255,0.7);">初级</strong> 首次使用 &rarr; 专属表情&times;1<br>
+        <strong style="color:var(--secondary);">熟练</strong> 累计积分达标 &rarr; 该星能专属击杀特效<br>
+        <strong style="color:var(--gold);">精通</strong> 高积分累计 &rarr; 专属进场动画+称号展示<br>
+        <strong style="color:var(--accent);">大师</strong> 最高积分段 &rarr; 全服限定称号+稀有挂件
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; max-width:1050px;">
+    <div class="highlight-badge" style="background:rgba(0,184,148,0.1); border-color:rgba(0,184,148,0.25); color:var(--green);">&#x1F503; 鼓励广度：9款星能独立计算，想集齐必须全体验</div>
+    <div class="highlight-badge" style="background:rgba(253,203,110,0.1); border-color:rgba(253,203,110,0.25); color:var(--gold);">&#x2728; 整活有回报：积分看表现不看胜负</div>
+    <div class="highlight-badge" style="background:rgba(253,121,168,0.1); border-color:rgba(253,121,168,0.25); color:var(--accent);">&#x1F4AC; 社交货币：稀有称号=话题</div>
+    <div class="highlight-badge">&#x1F4C8; 长线留存：9&times;4=36个收集目标</div>
+  </div>
+
+  <div class="slide-number">12 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 10: SUPPLEMENTARY ==================== -->
+<section class="slide" id="slide-10">
+  <span class="section-tag">补充 - 基础框架改造</span>
+  <h2>其他改造概览</h2>
+  <p style="text-align:center; margin-bottom:24px;">趣味型星能之外的基础框架调整</p>
+
+  <table class="compare-table">
+    <tr>
+      <th>维度</th>
+      <th>LOL海克斯大乱斗</th>
+      <th>星能大乱斗 <span class="tag-new">NEW</span></th>
+      <th>核心依据</th>
+    </tr>
+    <tr><td><strong>时长</strong></td><td>15-25分钟</td><td><strong style="color:var(--green);">缩短至防沉迷友好</strong></td><td>注意力特征+防沉迷适配</td></tr>
+    <tr><td><strong>队伍</strong></td><td>5v5</td><td><strong style="color:var(--green);">小队制</strong></td><td>《共鸣与逃离》低压刺激</td></tr>
+    <tr><td><strong>英雄</strong></td><td>完全随机</td><td><strong style="color:var(--green);">有限选择权</strong></td><td>保留盲盒感，避免坐牢</td></tr>
+    <tr><td><strong>技能</strong></td><td>4+被动+召唤师</td><td><strong style="color:var(--green);">精简技能组</strong></td><td>降低操作门槛</td></tr>
+    <tr><td><strong>装备</strong></td><td>150+件装备树</td><td><strong style="color:var(--green);">智能推荐+少量自选</strong></td><td>出装路线优化</td></tr>
+    <tr><td><strong>死亡</strong></td><td>递增等待</td><td><strong style="color:var(--green);">快速复活+死亡回放</strong></td><td>失败也有正反馈</td></tr>
+    <tr><td><strong>胜负</strong></td><td>推塔制</td><td><strong style="color:var(--green);">积分制(多元得分)</strong></td><td>《不确定时代》反优绩主义</td></tr>
+    <tr><td><strong>社交</strong></td><td>自由聊天</td><td><strong style="color:var(--green);">预设安全社交+点赞</strong></td><td>《00后社交》渐进式社交</td></tr>
+  </table>
+  <div class="slide-number">13 / 14</div>
+</section>
+
+<!-- ==================== SLIDE 11: SUMMARY ==================== -->
+<section class="slide" id="slide-11" style="background:radial-gradient(ellipse at center,#1a1a3e 0%,#0a0a1a 70%);">
+  <span class="section-tag">SUMMARY</span>
+  <h2>总结</h2>
+
+  <div style="margin-top:8px; margin-bottom:30px; text-align:center; max-width:800px;">
+    <div style="font-size:28px; font-weight:900; background:var(--gradient-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:14px;">
+      "他们的梗就是游戏机制<br>他们的整活就是成就路径"
+    </div>
+    <p style="font-size:14px; color:rgba(255,255,255,0.5);">
+      不是做一个更简单的大乱斗<br>
+      而是做一个他们的语言就是技能名字、他们的文化就是游戏DNA的大乱斗
+    </p>
+  </div>
+
+  <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center; max-width:1050px; margin-bottom:24px;">
+    <div class="card" style="border-color:var(--primary); text-align:center; flex:1; min-width:200px;">
+      <div class="card-icon">&#x1F3AE;</div>
+      <h3>个人体验出发</h3>
+      <p style="font-size:12px;">LOL大乱斗的好与坏<br>&rarr; 推演低龄用户需求</p>
+    </div>
+    <div class="card" style="border-color:var(--gold); text-align:center; flex:1; min-width:200px;">
+      <div class="card-icon">&#x1F4D6;</div>
+      <h3>研究洞察为骨骼</h3>
+      <p style="font-size:12px;">整活文化/反优绩/情绪价值/渐进社交<br>&rarr; 四大洞察指导设计</p>
+    </div>
+    <div class="card" style="border-color:var(--green); text-align:center; flex:1; min-width:200px;">
+      <div class="card-icon">&#x1F389;</div>
+      <h3>趣味星能为核心</h3>
+      <p style="font-size:12px;">9款梗星能+羁绊联动+平衡机制<br>&rarr; 5种多元成就路径</p>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:18px;">
+    <div class="highlight-badge">&#x1F31F; 显眼包</div>
+    <div class="highlight-badge">&#x1F575;&#xFE0F; 老六潜行</div>
+    <div class="highlight-badge">&#x1F465; i人/e人</div>
+    <div class="highlight-badge" style="background:rgba(253,121,168,0.1); border-color:rgba(253,121,168,0.3); color:var(--accent);">&#x1F483; 科目三</div>
+    <div class="highlight-badge" style="background:rgba(225,112,85,0.1); border-color:rgba(225,112,85,0.3); color:var(--orange);">&#x1F9DF; 脑腐咒语</div>
+    <div class="highlight-badge" style="background:rgba(99,110,114,0.15); border-color:rgba(99,110,114,0.35); color:#b2bec3;">&#x1F6E1;&#xFE0F; 我的刀盾</div>
+    <div class="highlight-badge" style="background:rgba(253,203,110,0.1); border-color:rgba(253,203,110,0.3); color:var(--gold);">&#x1F451; 公主护盾</div>
+    <div class="highlight-badge" style="background:rgba(255,107,107,0.1); border-color:rgba(255,107,107,0.3); color:var(--red);">&#x1F525; 芭比Q</div>
+    <div class="highlight-badge" style="background:rgba(0,206,201,0.1); border-color:rgba(0,206,201,0.3); color:var(--cyan);">&#x1F431; 哈基米</div>
+  </div>
+
+  <div style="font-size:13px; color:rgba(255,255,255,0.25);">
+    谢谢各位评委老师 &nbsp;|&nbsp; 元梦之星峡谷模式项目组 &nbsp;|&nbsp; 2026.04
+  </div>
+  <div class="slide-number">14 / 14</div>
+</section>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.nav-dot');
+  function scrollToSlide(i) { slides[i].scrollIntoView({behavior:'smooth'}); }
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting) { const i=Array.from(slides).indexOf(e.target); dots.forEach(d=>d.classList.remove('active')); if(dots[i]) dots[i].classList.add('active'); }});
+  }, {threshold:0.5});
+  slides.forEach(s => obs.observe(s));
+  document.addEventListener('keydown', e => {
+    const ci = Array.from(dots).findIndex(d=>d.classList.contains('active'));
+    if(e.key==='ArrowDown'||e.key===' '||e.key==='PageDown'){e.preventDefault();if(ci<slides.length-1)scrollToSlide(ci+1);}
+    else if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();if(ci>0)scrollToSlide(ci-1);}
+  });
+</script>
+</body>
+</html>

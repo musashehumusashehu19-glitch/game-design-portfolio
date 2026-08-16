@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Felix 的元梦峡谷平衡性策划求职作品：从生态诊断、英雄与卡牌定位，到方案落地和版本复盘的完整闭环。">
+  <title>从数据异常到版本闭环｜元梦峡谷平衡性策划作品</title>
+  <style>
+    :root {
+      --paper: #f3f0e9;
+      --surface: #fffdf8;
+      --surface-2: #ece8df;
+      --ink: #19211f;
+      --muted: #68706c;
+      --line: #d8d3c9;
+      --teal: #0d6b5c;
+      --teal-deep: #084d43;
+      --teal-soft: #dcebe6;
+      --orange: #d5612b;
+      --orange-soft: #f8e4d7;
+      --blue: #2f5e86;
+      --blue-soft: #e0eaf2;
+      --red: #a84435;
+      --red-soft: #f4dfda;
+      --yellow: #996f17;
+      --yellow-soft: #f4ead1;
+      --shadow: 0 18px 60px rgba(25, 33, 31, .08);
+      --radius: 20px;
+      --sans: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --serif: "Songti SC", "STSong", "Noto Serif SC", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 86px; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(13, 107, 92, .11), transparent 25rem),
+        radial-gradient(circle at 92% 22%, rgba(213, 97, 43, .08), transparent 24rem),
+        var(--paper);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.75;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; }
+    button { font: inherit; }
+    strong { font-weight: 760; }
+    :focus-visible { outline: 3px solid rgba(213, 97, 43, .45); outline-offset: 3px; }
+
+    .skip-link {
+      position: fixed; z-index: 100; left: 16px; top: -60px;
+      padding: 8px 14px; border-radius: 10px; background: var(--ink); color: #fff;
+    }
+    .skip-link:focus { top: 12px; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      border-bottom: 1px solid rgba(216, 211, 201, .82);
+      background: rgba(243, 240, 233, .90);
+      backdrop-filter: blur(16px);
+    }
+    .read-progress { position: absolute; left: 0; bottom: -1px; width: 0; height: 2px; background: var(--orange); transform-origin: left; }
+    .topbar-inner {
+      width: min(1180px, calc(100% - 40px)); height: 68px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.02em; }
+    .brand-mark {
+      width: 31px; height: 31px; border-radius: 9px; display: grid; place-items: center;
+      color: #fff; background: var(--teal); font-size: 13px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
+    }
+    .nav { display: flex; align-items: center; gap: 6px; }
+    .nav a {
+      padding: 7px 10px; color: var(--muted); text-decoration: none; border-radius: 8px; font-size: 13px;
+    }
+    .nav a:hover, .nav a.active { color: var(--teal); background: var(--teal-soft); }
+    .print-btn {
+      border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+      padding: 7px 12px; border-radius: 9px; cursor: pointer;
+    }
+    .print-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    main { overflow: hidden; }
+    .hero, .section { width: min(1180px, calc(100% - 40px)); margin-inline: auto; }
+    .hero {
+      min-height: 670px; padding: 90px 0 62px; display: grid; grid-template-columns: 1.28fr .72fr;
+      gap: 70px; align-items: center;
+    }
+    .eyebrow { margin: 0 0 18px; color: var(--teal); font-size: 13px; font-weight: 820; letter-spacing: .16em; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 820px; margin-bottom: 24px; font-family: var(--serif); font-size: clamp(42px, 6vw, 78px);
+      line-height: 1.08; letter-spacing: -.055em; font-weight: 760;
+    }
+    .hero-highlight { color: var(--teal); position: relative; white-space: nowrap; }
+    .hero-highlight::after {
+      content: ""; position: absolute; left: 2%; right: -1%; bottom: .07em; height: .16em;
+      border-radius: 999px; background: var(--orange); opacity: .25; transform: rotate(-1.5deg); z-index: -1;
+    }
+    .hero-lead { max-width: 760px; margin-bottom: 28px; color: #45504c; font-size: 18px; }
+    .hero-meta { display: flex; gap: 9px; flex-wrap: wrap; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--line);
+      border-radius: 999px; background: rgba(255, 253, 248, .7); color: var(--muted); font-size: 12px; font-weight: 700;
+    }
+    .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+    .hero-panel {
+      position: relative; min-height: 440px; padding: 30px; border-radius: 28px; color: #fff;
+      background: var(--teal-deep); box-shadow: var(--shadow); overflow: hidden;
+    }
+    .hero-panel::before {
+      content: ""; position: absolute; width: 250px; height: 250px; right: -90px; top: -70px;
+      border: 1px solid rgba(255,255,255,.24); border-radius: 50%; box-shadow: 0 0 0 46px rgba(255,255,255,.035), 0 0 0 92px rgba(255,255,255,.025);
+    }
+    .panel-kicker { position: relative; margin: 0; color: rgba(255,255,255,.65); font-size: 12px; letter-spacing: .15em; }
+    .hero-orbit { position: relative; height: 265px; margin: 10px 0 4px; }
+    .hero-orbit::before, .hero-orbit::after { content: ""; position: absolute; left: 50%; top: 50%; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; transform: translate(-50%, -50%); }
+    .hero-orbit::before { width: 226px; height: 226px; }
+    .hero-orbit::after { width: 160px; height: 160px; border-style: dashed; }
+    .orbit-core { position: absolute; z-index: 2; left: 50%; top: 50%; width: 128px; height: 128px; display: grid; place-content: center; text-align: center; border-radius: 50%; color: var(--teal-deep); background: #fff8e9; transform: translate(-50%, -50%); box-shadow: 0 12px 34px rgba(0,0,0,.18); }
+    .orbit-core small { color: var(--orange); font-size: 10px; font-weight: 850; letter-spacing: .12em; }
+    .orbit-core strong { margin-top: 2px; font-family: var(--serif); font-size: 25px; line-height: 1.1; }
+    .orbit-node { position: absolute; z-index: 3; padding: 5px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.88); font-size: 10px; font-weight: 800; }
+    .orbit-node.fair { left: 9%; top: 25%; }
+    .orbit-node.experience { right: 3%; top: 24%; }
+    .orbit-node.control { left: 13%; bottom: 18%; }
+    .orbit-node.ecology { right: 5%; bottom: 17%; }
+    .panel-metrics { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding-top: 14px; border-top: 1px solid rgba(255,255,255,.18); }
+    .panel-metrics span { color: rgba(255,255,255,.62); font-size: 10px; line-height: 1.45; }
+    .panel-metrics span + span { padding-left: 12px; border-left: 1px solid rgba(255,255,255,.16); }
+    .panel-metrics b { display: block; color: #fff; font-size: 16px; }
+    .panel-note { position: relative; margin: 12px 0 0; color: rgba(255,255,255,.62); font-size: 10px; }
+
+    .section { padding: 92px 0; }
+    .section-head { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-bottom: 38px; align-items: end; }
+    .section-no { color: var(--orange); font-size: 12px; font-weight: 850; letter-spacing: .18em; }
+    h2 { margin: 7px 0 0; font-family: var(--serif); font-size: clamp(31px, 4vw, 50px); line-height: 1.16; letter-spacing: -.035em; }
+    .section-intro { margin-bottom: 4px; color: var(--muted); }
+    .surface-band { background: rgba(255, 253, 248, .76); border-block: 1px solid var(--line); }
+
+    .scope-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+    .scope-card { padding: 22px 8px 8px; border: 0; border-top: 2px solid var(--line); border-radius: 0; background: transparent; }
+    .scope-card .index { color: var(--orange); font-size: 12px; font-weight: 850; }
+    .scope-card h3 { margin: 17px 0 9px; font-size: 18px; }
+    .scope-card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .scope-note {
+      display: grid; grid-template-columns: 170px 1fr; gap: 24px; margin-top: 18px; padding: 20px 24px;
+      border-left: 4px solid var(--yellow); border-radius: 0 14px 14px 0; background: var(--yellow-soft); font-size: 13px;
+    }
+    .scope-note strong { color: var(--yellow); }
+
+    .framework {
+      display: grid; grid-template-columns: .78fr 1.22fr; gap: 22px; align-items: stretch;
+    }
+    .principle {
+      padding: 30px; border-radius: var(--radius); color: #fff; background: var(--ink); box-shadow: var(--shadow);
+    }
+    .principle small { color: rgba(255,255,255,.62); font-weight: 750; letter-spacing: .12em; }
+    .principle blockquote { margin: 40px 0 26px; font-family: var(--serif); font-size: 29px; line-height: 1.45; }
+    .principle p { color: rgba(255,255,255,.68); font-size: 13px; }
+    .layers { display: grid; gap: 10px; align-content: center; }
+    .layer {
+      display: grid; grid-template-columns: 112px 1fr 118px; gap: 18px; align-items: center;
+      padding: 18px 12px 18px 20px; border: 0; border-left: 4px solid var(--teal); border-radius: 0;
+      background: linear-gradient(90deg, rgba(220,235,230,.62), transparent 78%);
+    }
+    .layer:nth-child(2) { margin-left: 7%; border-left-color: var(--orange); }
+    .layer:nth-child(3) { margin-left: 14%; border-left-color: var(--blue); }
+    .layer b { color: var(--teal); font-size: 13px; }
+    .layer h3 { margin: 2px 0 5px; font-size: 18px; }
+    .layer p { margin: 0; color: var(--muted); font-size: 13px; }
+    .layer output { color: var(--orange); text-align: right; font-size: 12px; font-weight: 800; }
+
+    .data-line { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 22px; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--line); }
+    .data-item { min-height: 148px; padding: 22px; background: var(--surface); }
+    .data-item strong { display: block; margin-bottom: 8px; font-size: 15px; }
+    .data-item p { margin: 0; color: var(--muted); font-size: 12px; }
+    .data-item .label { display: block; margin-bottom: 22px; color: var(--teal); font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+
+    .method-bridge { display: grid; grid-template-columns: .9fr 1.1fr; gap: 14px; margin-top: 22px; }
+    .method-block { padding: 25px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .method-kicker { display: block; margin-bottom: 7px; color: var(--orange); font-size: 10px; font-weight: 850; letter-spacing: .12em; }
+    .method-block h3 { margin: 0 0 17px; font-size: 19px; }
+    .goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .goal { padding: 13px; border-radius: 12px; background: var(--surface-2); }
+    .goal b { display: block; margin-bottom: 4px; color: var(--teal-deep); font-size: 13px; }
+    .goal span { display: block; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .diversity-map { position: relative; min-height: 236px; margin-top: 4px; }
+    .diversity-map::before { content: ""; position: absolute; left: 50%; top: 50%; width: 180px; height: 180px; border: 1px solid var(--line); border-radius: 50%; transform: translate(-50%, -50%); }
+    .diversity-center { position: absolute; z-index: 2; left: 50%; top: 50%; width: 118px; height: 118px; display: grid; place-content: center; text-align: center; border-radius: 50%; color: #fff; background: var(--teal-deep); transform: translate(-50%, -50%); box-shadow: 0 12px 28px rgba(8,77,67,.2); }
+    .diversity-center small { color: rgba(255,255,255,.64); font-size: 9px; letter-spacing: .12em; }
+    .diversity-center strong { font-family: var(--serif); font-size: 22px; }
+    .diversity-axis { position: absolute; max-width: 126px; font-size: 10px; line-height: 1.45; }
+    .diversity-axis b { display: block; color: var(--orange); font-size: 12px; }
+    .diversity-axis.fair { left: 0; top: 12px; text-align: right; }
+    .diversity-axis.experience { right: 0; top: 12px; }
+    .diversity-axis.identity { left: 0; bottom: 8px; text-align: right; }
+    .diversity-axis.control { right: 0; bottom: 8px; }
+    .core-foot { margin: 0; padding-top: 13px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    .segment-list { display: grid; gap: 9px; }
+    .segment-row { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); }
+    .segment-row b { color: var(--blue); font-size: 12px; }
+    .segment-row span { color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .mechanic-gate { grid-column: 1 / -1; padding: 22px 25px; border-radius: var(--radius); color: #fff; background: var(--blue); }
+    .mechanic-gate h3 { margin: 0 0 7px; font-size: 18px; }
+    .mechanic-gate p { margin: 0 0 14px; color: rgba(255,255,255,.74); font-size: 12px; }
+    .mechanic-tags { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .mechanic-tags span { padding: 10px 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; background: rgba(255,255,255,.08); font-size: 11px; }
+
+    .sop { display: grid; grid-template-columns: repeat(3, 1fr); gap: 38px 18px; padding-top: 12px; counter-reset: sop; }
+    .sop-card {
+      position: relative; min-height: 214px; padding: 32px 12px 28px; overflow: visible;
+      border: 0; border-top: 2px solid var(--line); border-radius: 0; background: transparent; counter-increment: sop;
+    }
+    .sop-card::after { display: none; }
+    .sop-card h3, .sop-card p, .sop-card .deliverable { position: relative; z-index: 1; }
+    .sop-card h3 { margin: 16px 0 9px; font-size: 18px; }
+    .sop-card p { color: var(--muted); font-size: 13px; }
+    .deliverable { position: absolute; left: 12px; right: 12px; bottom: 4px; color: var(--teal); font-size: 11px; font-weight: 800; }
+    .dot { position: absolute; left: 12px; top: -13px; width: 24px; height: 24px; display: grid; place-items: center; border: 3px solid var(--paper); border-radius: 50%; color: #fff; background: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+    .dot::after { content: counter(sop); font-size: 9px; font-weight: 900; }
+
+    .rule-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 16px; }
+    .rule { padding: 17px 19px; border-radius: 14px; background: var(--teal-soft); color: var(--teal-deep); font-size: 13px; }
+
+    .decision-block {
+      margin-top: 24px; padding: 28px 0; border: 0; border-block: 1px solid var(--line); border-radius: 0;
+      background: transparent;
+    }
+    .decision-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+    .decision-head h3 { margin: 3px 0 0; font-size: 20px; }
+    .decision-head p { max-width: 590px; margin: 0; color: var(--muted); font-size: 12px; }
+    .decision-flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+    .decision-step { position: relative; min-height: 112px; padding: 19px 7px 0; border: 0; border-top: 2px solid var(--line); border-radius: 0; background: transparent; }
+    .decision-step::before { content: ""; position: absolute; left: 7px; top: -6px; width: 10px; height: 10px; border: 2px solid var(--paper); border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+    .decision-step:not(:last-child)::after { display: none; }
+    .decision-step b { display: block; margin-bottom: 7px; color: var(--teal); font-size: 13px; }
+    .decision-step span { display: block; color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+    .evidence-summary { display: grid; grid-template-columns: .78fr 1.22fr; gap: 22px; align-items: start; }
+    .score-card { position: sticky; top: 98px; padding: 30px; border-radius: var(--radius); color: #fff; background: var(--teal-deep); }
+    .score-card .big { margin: 18px 0 8px; font-size: 84px; line-height: .95; font-weight: 850; letter-spacing: -.07em; }
+    .score-card p { color: rgba(255,255,255,.72); font-size: 13px; }
+    .bars { display: grid; gap: 15px; padding: 25px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .bar-row { display: grid; grid-template-columns: 70px 1fr 146px; gap: 14px; align-items: center; font-size: 13px; }
+    .bar-track { height: 11px; overflow: hidden; border-radius: 999px; background: var(--surface-2); }
+    .bar-fill { height: 100%; border-radius: inherit; background: var(--teal); }
+    .bar-fill.down { background: var(--orange); }
+    .bar-value { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .bar-value em { color: var(--ink); font-style: normal; font-weight: 800; }
+
+    .case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 20px; }
+    .case {
+      padding: 24px 0; border: 0; border-top: 3px solid var(--line); border-radius: 0; background: transparent;
+      box-shadow: none;
+    }
+    .case:nth-child(odd) { border-top-color: var(--teal); }
+    .case:nth-child(even) { border-top-color: var(--orange); }
+    .case-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+    .case h3 { margin: 4px 0 0; font-size: 21px; }
+    .case-label { color: var(--muted); font-size: 11px; letter-spacing: .1em; font-weight: 800; }
+    .verdict { flex: 0 0 auto; padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .hit { color: var(--teal); background: var(--teal-soft); }
+    .learn { color: var(--yellow); background: var(--yellow-soft); }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 22px 0 16px; }
+    .compare div { padding: 14px; border-radius: 12px; background: var(--surface-2); font-size: 12px; }
+    .compare div:first-child { background: var(--blue-soft); }
+    .compare b { display: block; margin-bottom: 5px; color: var(--blue); font-size: 10px; letter-spacing: .08em; }
+    .case > p { margin: 0; color: var(--muted); font-size: 13px; }
+    .case > p strong { color: var(--ink); }
+
+    .open-track { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+    .track-card { padding: 20px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+    .track-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .track-top h3 { margin: 0; font-size: 16px; }
+    .track-status { padding: 3px 8px; border-radius: 999px; background: var(--yellow-soft); color: var(--yellow); font-size: 10px; font-weight: 850; }
+    .track-status.stable { background: var(--teal-soft); color: var(--teal); }
+    .track-card p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .timeline-wrap { position: relative; margin: 0; }
+    .timeline-wrap::before { content: ""; position: absolute; left: 49px; top: 10px; bottom: 10px; width: 1px; background: var(--line); }
+    .timeline-row { position: relative; display: grid; grid-template-columns: 100px 1fr; gap: 28px; padding: 0 0 24px; }
+    .timeline-date { position: relative; color: var(--teal); font-size: 13px; font-weight: 850; }
+    .timeline-date::after { content: ""; position: absolute; right: 44px; top: 7px; width: 11px; height: 11px; border: 3px solid var(--paper); border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+    .timeline-body { padding: 0 0 24px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; }
+    .timeline-body h3 { margin: 0 0 7px; font-size: 17px; }
+    .timeline-body p { margin: 0; color: var(--muted); font-size: 13px; }
+    .time-tag { display: inline-block; margin-top: 11px; color: var(--orange); font-size: 11px; font-weight: 800; }
+
+    .ecosystem { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; counter-reset: eco; }
+    .eco-card { position: relative; padding: 28px 0 0; border: 0; border-top: 3px solid var(--teal); border-radius: 0; background: transparent; counter-increment: eco; }
+    .eco-card:nth-child(2) { border-top-color: var(--orange); }
+    .eco-card:nth-child(3) { border-top-color: var(--blue); }
+    .eco-card::before { content: "0" counter(eco); position: absolute; right: 0; top: -28px; color: rgba(25,33,31,.09); font-size: 74px; font-weight: 900; line-height: 1; }
+    .eco-card h3 { margin: 0 0 16px; font-size: 19px; }
+    .eco-flow { display: grid; gap: 8px; }
+    .eco-step { position: relative; padding: 0 0 14px 20px; border-left: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--muted); font-size: 12px; }
+    .eco-step::before { content: ""; position: absolute; left: -4px; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
+    .eco-step + .eco-step::before { display: block; margin: 0; }
+    .eco-result { margin-top: 16px; padding-top: 15px; border-top: 1px solid var(--line); font-size: 12px; }
+    .eco-result strong { color: var(--teal); }
+
+    details { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    details + details { margin-top: 10px; }
+    summary { padding: 18px 22px; cursor: pointer; list-style: none; font-weight: 780; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; float: right; color: var(--orange); font-size: 21px; line-height: 1; }
+    details[open] summary::after { content: "−"; }
+    .detail-body { padding: 0 22px 22px; }
+    .case-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .case-table th, .case-table td { padding: 11px 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .case-table th { color: var(--muted); font-size: 11px; }
+    .case-table td:first-child { font-weight: 800; white-space: nowrap; }
+    .case-table td:last-child { color: var(--muted); }
+
+    .reflection { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .boundary { padding: 28px; border-radius: var(--radius); }
+    .boundary.data { color: var(--teal-deep); background: var(--teal-soft); }
+    .boundary.design { color: #753818; background: var(--orange-soft); }
+    .boundary h3 { margin: 0 0 18px; font-size: 21px; }
+    .boundary ul { margin: 0; padding-left: 19px; }
+    .boundary li { margin: 8px 0; font-size: 13px; }
+    .growth { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+    .growth-card { padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+    .growth-card b { display: block; margin-bottom: 7px; font-size: 14px; }
+    .growth-card p { margin: 0; color: var(--muted); font-size: 12px; }
+    .growth-path { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+    .growth-step { position: relative; padding: 28px 12px 6px; border: 0; border-top: 2px solid var(--line); border-radius: 0; background: transparent; }
+    .growth-step::after { content: ""; position: absolute; left: 12px; top: -6px; width: 10px; height: 10px; border: 2px solid var(--paper); border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+    .growth-step::before { content: attr(data-date); display: block; margin-bottom: 18px; color: var(--orange); font-size: 11px; font-weight: 900; letter-spacing: .1em; }
+    .growth-step b { display: block; margin-bottom: 6px; font-size: 14px; }
+    .growth-step span { display: block; color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    .closing {
+      display: grid; grid-template-columns: 1.3fr .7fr; gap: 40px; padding: 46px;
+      border-radius: 26px; color: #fff; background: var(--ink); box-shadow: var(--shadow);
+    }
+    .closing h2 { margin: 0; max-width: 720px; font-size: 34px; }
+    .closing p { margin: 0; color: rgba(255,255,255,.68); font-size: 13px; align-self: end; }
+    .source-note { margin: 18px 4px 0; color: var(--muted); font-size: 11px; }
+
+    footer { padding: 26px 0 50px; color: var(--muted); font-size: 11px; text-align: center; }
+
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s cubic-bezier(.22,.8,.24,1); }
+    .reveal.is-visible { opacity: 1; transform: none; }
+
+    @media (max-width: 940px) {
+      .nav { display: none; }
+      .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 68px; gap: 36px; }
+      .hero-panel { min-height: 390px; }
+      .section-head, .framework, .evidence-summary, .method-bridge { grid-template-columns: 1fr; gap: 22px; }
+      .score-card { position: relative; top: auto; }
+      .scope-grid, .data-line { grid-template-columns: repeat(2, 1fr); }
+      .decision-flow { grid-template-columns: repeat(2, 1fr); }
+      .decision-step:not(:last-child)::after { display: none; }
+      .sop { grid-template-columns: repeat(2, 1fr); }
+      .ecosystem, .growth, .open-track { grid-template-columns: 1fr; }
+      .growth-path { grid-template-columns: repeat(2, 1fr); }
+      .mechanic-gate { grid-column: auto; }
+      .mechanic-tags { grid-template-columns: repeat(2, 1fr); }
+      .closing { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner, .hero, .section { width: min(100% - 26px, 1180px); }
+      .brand span:last-child { display: none; }
+      .hero { padding-top: 50px; }
+      h1 { font-size: 42px; }
+      .section { padding: 66px 0; }
+      .scope-grid, .data-line, .sop, .case-grid, .reflection, .rule-strip, .goal-grid, .mechanic-tags, .decision-flow, .growth-path { grid-template-columns: 1fr; }
+      .decision-head { align-items: flex-start; flex-direction: column; gap: 7px; }
+      .diversity-map { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; min-height: 0; padding-top: 154px; }
+      .diversity-map::before { top: 66px; width: 126px; height: 126px; }
+      .diversity-center { top: 66px; width: 104px; height: 104px; }
+      .diversity-center strong { font-size: 19px; }
+      .diversity-axis { position: static; max-width: none; padding-top: 9px; border-top: 1px solid var(--line); text-align: left !important; }
+      .scope-note { grid-template-columns: 1fr; gap: 5px; }
+      .layer { grid-template-columns: 1fr; gap: 6px; }
+      .layer:nth-child(2), .layer:nth-child(3) { margin-left: 0; }
+      .layer output { text-align: left; }
+      .bar-row { grid-template-columns: 56px 1fr; }
+      .bar-value { grid-column: 2; }
+      .compare { grid-template-columns: 1fr; }
+      .timeline-row { grid-template-columns: 72px 1fr; gap: 16px; }
+      .timeline-wrap::before { left: 35px; }
+      .timeline-date::after { right: 30px; }
+      .case-table { display: block; overflow-x: auto; }
+      .closing { padding: 30px; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: #fff; font-size: 10pt; }
+      .topbar { display: none; }
+      .hero, .section { width: 100%; padding: 13mm 0; }
+      .hero { min-height: auto; grid-template-columns: 1.2fr .8fr; gap: 10mm; }
+      h1 { font-size: 34pt; }
+      .hero-panel { min-height: 100mm; }
+      .section { break-before: page; }
+      .scope-card, .case, .sop-card, .eco-card, .timeline-body, details { break-inside: avoid; box-shadow: none; }
+      details > .detail-body { display: block; }
+      details:not([open]) > .detail-body { display: block; }
+      .print-btn { display: none; }
+      .score-card { position: relative; top: auto; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <style>.portfolio-back{position:fixed;right:18px;bottom:18px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(8,17,31,.88);color:#fff;font:600 13px/1.2 "Microsoft YaHei",sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(12px)}.portfolio-back:hover{transform:translateY(-2px)}@media print{.portfolio-back{display:none}}</style>
+  <a class="portfolio-back" href="../" aria-label="返回作品集总览">← 作品集</a>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark">FX</span><span>Felix · 平衡性策划作品</span></div>
+      <nav class="nav" aria-label="页面导航">
+        <a href="quick-view.html">3分钟速览</a><a href="#scope">职责</a><a href="#method">方法</a><a href="#evidence">证据</a><a href="#ecosystem">生态</a><a href="#review">复盘</a>
+      </nav>
+      <button class="print-btn" type="button" onclick="window.print()" aria-label="打印或导出为 PDF">导出 PDF</button>
+    </div>
+    <div class="read-progress" aria-hidden="true"></div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">GAME BALANCE DESIGN · PORTFOLIO</p>
+        <h1 id="hero-title">从数据异常<br>到<span class="hero-highlight">版本闭环</span></h1>
+        <p class="hero-lead">以《元梦之星》峡谷 5v5 为项目背景，展示我如何从生态环境、英雄数据与卡牌表现中定位问题，让玩家持续拥有多个合理、有差异的选择，并通过实际落地与后续数据完成复盘。</p>
+        <div class="hero-meta">
+          <span class="tag">Felix</span>
+          <span class="tag">数值策划实习</span>
+          <span class="tag">平衡性方案 × 标准工作流程（SOP）</span>
+        </div>
+      </div>
+      <aside class="hero-panel" aria-label="项目关键结果">
+        <p class="panel-kicker">BALANCE NORTH STAR</p>
+        <div class="hero-orbit" aria-label="以多样选择为核心，受公平、体验、可控性与生态差异约束">
+          <div class="orbit-core"><small>核心追求</small><strong>多样选择</strong></div>
+          <span class="orbit-node fair">公平边界</span>
+          <span class="orbit-node experience">对抗体验</span>
+          <span class="orbit-node control">版本可控</span>
+          <span class="orbit-node ecology">生态差异</span>
+        </div>
+        <div class="panel-metrics">
+          <span><b>4轮</b>版本方案</span>
+          <span><b>4轮</b>配置落地</span>
+          <span><b>0810</b>效果回收</span>
+        </div>
+        <p class="panel-note">数据诊断 · 版本归因 · 改动设计 · 落地复盘 · 方法沉淀</p>
+      </aside>
+    </section>
+
+    <div class="surface-band">
+      <section class="section" id="scope">
+        <div class="section-head">
+          <div><span class="section-no">01 · ROLE &amp; SCOPE</span><h2>我在项目中做了什么</h2></div>
+          <p class="section-intro">重点呈现一条可审查的工作链：从数据异常出发，形成可执行方案，再用版本结果校准判断并沉淀方法。</p>
+        </div>
+        <div class="scope-grid">
+          <article class="scope-card"><span class="index">01</span><h3>版本扫描</h3><p>分层观察高分段与整体玩家的出场率、胜率、禁用率及版本差值，圈定异常英雄和职业生态。</p></article>
+          <article class="scope-card"><span class="index">02</span><h3>问题定位</h3><p>结合卡牌胜差、选取率和技能伤害分布，进一步定位到技能或卡牌的具体问题。</p></article>
+          <article class="scope-card"><span class="index">03</span><h3>改动设计</h3><p>选择技能/卡牌、数值/机制四类杠杆，给出改前改后值、预期与风险校验。</p></article>
+          <article class="scope-card"><span class="index">04</span><h3>配置与落地复盘</h3><p>四轮均完成具体配置，并将方案逐条对照正式版本，用后续数据验证强度位移、归因偏差与待验证分歧。</p></article>
+        </div>
+        <div class="scope-note"><strong>职责边界说明</strong><span>0618 首次参与方案分析与具体配置；0702 基于 0622 数据独立完成初步分析，并参与团队收敛、数值方案与配置落地；0723 主导方案、完成具体配置并经导师评审校准；0727 完成效果复盘与元坦生态分析；0806 对应方案的五轮迭代（v1—v5）与具体配置由本人全程主导，0810 回收结果并更新待验证分歧。</span></div>
+
+        <div class="decision-block" aria-label="0702协作决策流程">
+          <div class="decision-head">
+            <div><span class="method-kicker">0702 · COLLABORATIVE DECISION</span><h3>从数据候选到可落地方案</h3></div>
+            <p>这一轮开始，我不再把数据异常直接等同于调整名单，而是把职业定位、玩家认知和版本范围纳入第二轮筛选。</p>
+          </div>
+          <div class="decision-flow">
+            <div class="decision-step"><b>01 数据筛选</b><span>读取上一验证窗口，建立削强、补弱与观察候选池。</span></div>
+            <div class="decision-step"><b>02 框架评审</b><span>由团队补充职业整体表现、英雄定位与新英雄观察要求。</span></div>
+            <div class="decision-step"><b>03 范围收敛</b><span>从候选池确定当期对象，区分单英雄问题与职业性问题。</span></div>
+            <div class="decision-step"><b>04 形成数值方案</b><span>拆解前后期曲线、技能与卡牌，输出调整前后值。</span></div>
+            <div class="decision-step"><b>05 配置落地</b><span>完成武则天、铠、宫本、白衡等对象的配置与核对。</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section" id="method">
+      <div class="section-head">
+        <div><span class="section-no">02 · METHOD</span><h2>我的平衡性分析框架</h2></div>
+        <p class="section-intro">先明确这次调整要解决公平、体验还是多样性问题，再回答“环境发生了什么”“该动谁”和“具体动哪里”，把静态强弱改写为可验证的版本因果问题。</p>
+      </div>
+
+      <div class="framework">
+        <aside class="principle">
+          <small>核心判断</small>
+          <blockquote>平衡不是把所有英雄拉到 50%，而是让不同定位持续拥有可用、可反制、有差异的选择。</blockquote>
+          <p>多样性是最终希望维持的生态结果；公平、对抗体验与版本可控性决定它是否健康。出场率观察选择结构，胜率与禁用率解释强度和威胁，但任何单一指标都不能代替决策。</p>
+        </aside>
+        <div class="layers">
+          <article class="layer"><b>第零层</b><div><h3>生态环境</h3><p>寻找版本震源，即引发环境变化的主导因素，梳理其对其他英雄的连带影响。</p></div><output>主导因素 + 影响链</output></article>
+          <article class="layer"><b>第一层</b><div><h3>英雄级判定</h3><p>按出场率 → 胜率 → 禁用率，结合不同玩家分层的同向或分化趋势，筛选强势越界（OP）、弱势掉队（UP）与观察项。</p></div><output>对象 + 优先级</output></article>
+          <article class="layer"><b>第二层</b><div><h3>微观定位</h3><p>用伤害结构与“选卡胜差 × 选取率”定位具体技能或卡牌，再选择调整杠杆。</p></div><output>主要调整变量 + 幅度</output></article>
+        </div>
+      </div>
+
+      <div class="data-line" aria-label="四类数据输入">
+        <div class="data-item"><span class="label">01 · 英雄局数据</span><strong>哪些对象出现异常？</strong><p>出场率 / 胜率 / 禁用率及版本差值，作为宏观入口。</p></div>
+        <div class="data-item"><span class="label">02 · 卡牌胜率</span><strong>卡牌强度是否独立成立？</strong><p>主要观察“英雄选卡胜率差”，降低英雄使用者差异的干扰。</p></div>
+        <div class="data-item"><span class="label">03 · 卡牌选取</span><strong>选择是否具有吸引力？</strong><p>叠加强度与选取表现，区分高强高选、高强低选、低强高选与低强低选四类情况。</p></div>
+        <div class="data-item"><span class="label">04 · 伤害分布</span><strong>主要强度来源是什么？</strong><p>拆分普攻、技能、被动与卡牌伤害，识别结构性偏高来源。</p></div>
+      </div>
+
+      <div class="method-bridge" aria-label="平衡目标、玩家分层与机制校验">
+        <article class="method-block">
+          <span class="method-kicker">MULTI-OBJECTIVE</span>
+          <h3>以多样选择为目标，用三类边界约束</h3>
+          <div class="diversity-map" aria-label="平衡目标关系图">
+            <div class="diversity-center"><small>生态结果</small><strong>多样选择</strong></div>
+            <div class="diversity-axis fair"><b>公平性</b>强度不越界，避免统治项迫使玩家跟随。</div>
+            <div class="diversity-axis experience"><b>对抗体验</b>可识别、可反应，并保有有效反制。</div>
+            <div class="diversity-axis identity"><b>定位差异</b>英雄与阵容拥有清晰且可玩的独特价值。</div>
+            <div class="diversity-axis control"><b>版本可控</b>改动可归因、可验证，必要时能够回滚。</div>
+          </div>
+          <p class="core-foot">不是追求“每个英雄都一样”，而是避免少数最优解长期挤压选择空间。</p>
+        </article>
+        <article class="method-block">
+          <span class="method-kicker">PLAYER SEGMENTATION</span>
+          <h3>不同分层回答不同问题</h3>
+          <div class="segment-list">
+            <div class="segment-row"><b>高分段</b><span>观察英雄机制上限、高手专属强势与细小数值变化，作为强度上限信号。</span></div>
+            <div class="segment-row"><b>整体玩家</b><span>观察真实选择结构、版本接受度与整体体验；低分段用于补充体验与选择信息，不单独承担强度上限判断。</span></div>
+            <div class="segment-row"><b>特殊样本</b><span>高获取门槛或高熟练玩家集中的英雄，要区分真实强度与玩家结构带来的选择偏差。</span></div>
+            <div class="segment-row"><b>体验反馈</b><span>解释胜率较低但禁用率较高、技能信息不清晰或缺乏反制等数据无法单独回答的问题。</span></div>
+          </div>
+        </article>
+        <article class="mechanic-gate">
+          <h3>机制改动的四道体验校验</h3>
+          <p>数值对标只能回答量级，控制、位移、射程和特殊功能还需要单独检查对手是否拥有可识别、可反应、可逃离、可反制的空间。</p>
+          <div class="mechanic-tags"><span><b>控制</b><br>控制链长度与可操作间隔</span><span><b>机动</b><br>位移上限与基础生存属性/射程代价</span><span><b>命中</b><br>前摇、预警与走位窗口</span><span><b>功能</b><br>核心参数与对应克制位</span></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="surface-band">
+      <section class="section" id="sop">
+        <div class="section-head">
+          <div><span class="section-no">03 · SOP</span><h2>一个版本的六步闭环</h2></div>
+          <p class="section-intro">每一步都有明确输入、判断规则与交付物，避免仅凭单张异常数据直接调整数值。</p>
+        </div>
+        <div class="sop">
+          <article class="sop-card"><div class="dot"></div><h3>数据提取与清洗</h3><p>统一峡谷 5v5 排位口径，剔除异常对局；按玩家水平分层观察，样本不足时只作旁证。</p><span class="deliverable">产出｜分层指标数据表</span></article>
+          <article class="sop-card"><div class="dot"></div><h3>生态归因</h3><p>寻找强度与热度同时偏高的震源，提出连带影响假设，再用版本差值与职业分化验证。</p><span class="deliverable">产出｜震源假设与影响链</span></article>
+          <article class="sop-card"><div class="dot"></div><h3>圈定对象</h3><p>结合高分段上限、整体玩家选择与体验反馈，筛选强势越界、确认弱势和观察项，避免由单一指标直接决策。</p><span class="deliverable">产出｜对象、目标与优先级</span></article>
+          <article class="sop-card"><div class="dot"></div><h3>定位主要变量</h3><p>用胜差、选取和伤害结构至少两项互证，锁定一个技能或一张卡牌作为主要调整变量。</p><span class="deliverable">产出｜调整点与杠杆</span></article>
+          <article class="sop-card"><div class="dot"></div><h3>确定幅度与校验</h3><p>对标同定位伤害与生存结构；机制项再检查控制、机动、命中预警和反制空间。</p><span class="deliverable">产出｜最终方案与风险清单</span></article>
+          <article class="sop-card"><div class="dot"></div><h3>上线与效果回收</h3><p>观察相邻验证窗口的指标差值；已调整对象验证效果，未调整对象的异常变化回到生态层归因。</p><span class="deliverable">产出｜复盘与观察项</span></article>
+        </div>
+        <div class="rule-strip">
+          <div class="rule"><strong>三件互证</strong><br>胜差 × 选取 × 伤害，至少两项同向</div>
+          <div class="rule"><strong>一个主要变量</strong><br>保留归因能力，警惕多张卡牌产生叠加放大效应</div>
+          <div class="rule"><strong>四类杠杆</strong><br>英雄/卡牌 × 数值/机制，按问题选择</div>
+          <div class="rule"><strong>候选池分期</strong><br>方案池不等于当期清单，按优先级分批落地</div>
+          <div class="rule"><strong>体验问题优先处理</strong><br>严重缺乏反制或清晰度不足时，可先处理体验问题，再补充数据验证</div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section" id="evidence">
+      <div class="section-head">
+        <div><span class="section-no">04 · EVIDENCE</span><h2>用后续数据验证方案</h2></div>
+        <p class="section-intro">0810 回收了 0806 改动后的结果：削弱对象明显回落，多数加强对象得到抬升，并暴露了一个“方向正确但力度不足”的后续观察项。</p>
+      </div>
+      <div class="evidence-summary">
+        <aside class="score-card"><span>最新验证节点</span><div class="big">0810</div><p>0806 的处理对象整体沿预期方向移动：两项强势对象被回收，多数弱势对象回到可选区间；程咬金仅小幅改善，成为下一轮力度校准样本。</p></aside>
+        <div class="bars" aria-label="0806改动后的关键英雄胜率趋势">
+          <div class="bar-row"><strong>玄玄子</strong><div class="bar-track"><div class="bar-fill down" style="width:100%"></div></div><span class="bar-value"><em>约 −11 个百分点</em>｜强度回收</span></div>
+          <div class="bar-row"><strong>墨子</strong><div class="bar-track"><div class="bar-fill down" style="width:78%"></div></div><span class="bar-value"><em>约 −9 个百分点</em>｜挤压缓解</span></div>
+          <div class="bar-row"><strong>项羽</strong><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-value"><em>约 +11 个百分点</em>｜明显改善</span></div>
+          <div class="bar-row"><strong>大乔</strong><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="bar-value"><em>约 +9 个百分点</em>｜回到可选区间</span></div>
+          <div class="bar-row"><strong>兰陵王</strong><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div><span class="bar-value"><em>约 +6 个百分点</em>｜补强生效</span></div>
+          <div class="bar-row"><strong>程咬金</strong><div class="bar-track"><div class="bar-fill" style="width:18%"></div></div><span class="bar-value"><em>小幅上升</em>｜力度偏弱</span></div>
+        </div>
+      </div>
+
+      <div class="case-grid">
+        <article class="case">
+          <div class="case-top"><div><span class="case-label">数值对应 · 0723</span><h3>瑶｜回收低风险保护收益</h3></div><span class="verdict hit">数值一致</span></div>
+          <div class="compare"><div><b>我的方案</b>共生减免 14% → 8%—10%，作为主要削弱变量。</div><div><b>实际落地</b>共生减免 14% → 10%，并追加本体与其他卡牌调整。</div></div>
+          <p><strong>判断价值：</strong>瑶的问题不只在静态胜率，更在低风险保护能力对辅助选择多样性的挤压。核心卡牌数值可量化时，问题定位与调整幅度更容易贴近最终方案。</p>
+        </article>
+
+        <article class="case">
+          <div class="case-top"><div><span class="case-label">趋势识别 · 0806</span><h3>玄玄子｜从异常识别到集中回收</h3></div><span class="verdict hit">方向一致</span></div>
+          <div class="compare"><div><b>我的方案</b>调整控制链与核心卡牌；结界上限 5 → 3 秒，暂不调整本体伤害。</div><div><b>实际落地</b>结界 5 → 3 秒、两张卡牌同向下调，并同步降低本体伤害、延长大招冷却时间。</div></div>
+          <p><strong>判断价值：</strong>前期数据出现约 17 个百分点的异常跃升，0806 回收后下降约 11 个百分点。异常识别与卡牌方向正确；当强度与安全性同时偏高时，需要更积极地处理本体强度来源。</p>
+        </article>
+
+        <article class="case">
+          <div class="case-top"><div><span class="case-label">联合判断 · 0727</span><h3>苏打｜强度上涨但暂不超标</h3></div><span class="verdict learn">方法升级</span></div>
+          <div class="compare"><div><b>强度信号</b>胜率一度明显上升；大招期间移速改善了技能释放与追击体验。</div><div><b>热度信号</b>出场率仍处低位，0810 虽继续抬升但尚未充分扩散。</div></div>
+          <p><strong>校准结论：</strong>英雄已经具备强度，但不应只看单期胜率直接削弱；如后续热度持续上升，优先回收伤害，保留核心机动体验。</p>
+        </article>
+
+        <article class="case">
+          <div class="case-top"><div><span class="case-label">能力边界 · 0806</span><h3>项羽｜数据难以解释的战斗循环问题</h3></div><span class="verdict learn">方法校准</span></div>
+          <div class="compare"><div><b>我的方案</b>以承伤和生存为重点，仅调整专属卡；因局均伤害已高，暂不提高伤害。</div><div><b>实际落地</b>降低技能冷却时间、提高攻速并加强伤害卡牌，强化战坦循环。</div></div>
+          <p><strong>校准结论：</strong>数据分析能够定位强弱维度，但难以独立判断操作循环与角色定位。此类结论需要补充实战体验与团队定位校验。</p>
+        </article>
+      </div>
+
+      <div class="open-track" aria-label="待验证分歧追踪">
+        <article class="track-card"><div class="track-top"><h3>凌音｜主要变量待验证</h3><span class="track-status">继续跟踪</span></div><p>此前仅小幅调整治疗，坦度与控制卡牌未进入当期范围；0810 强度信号再次上扬，说明原主要变量仍需后续验证。</p></article>
+        <article class="track-card"><div class="track-top"><h3>苏打｜强度与热度分离</h3><span class="track-status">观察扩散</span></div><p>胜率从高位回落，出场率缓慢增长但仍低；继续观察资源节奏问题是否会随玩家认知提升而显现。</p></article>
+        <article class="track-card"><div class="track-top"><h3>鲁班｜阶段平衡</h3><span class="track-status stable">暂缓跟踪</span></div><p>本体输出回调后，0810 强度与出场基本稳定；生存体验切入与输出切入的分歧暂不继续放大。</p></article>
+      </div>
+    </section>
+
+    <div class="surface-band">
+      <section class="section" id="timeline">
+        <div class="section-head">
+          <div><span class="section-no">05 · TIMELINE</span><h2>平衡工作时间线</h2></div>
+          <p class="section-intro">每轮从当期数据出发，完成问题分析、方案讨论与配置落地，再通过后续数据验证效果。以下按实际参与顺序呈现。</p>
+        </div>
+        <div class="timeline-wrap">
+          <article class="timeline-row"><div class="timeline-date">0618</div><div class="timeline-body"><h3>首次参与方案与配置落地</h3><p>在导师指导下，基于 0526 数据参与 6 个英雄的技能与卡牌分析、方案讨论及具体配置；星旅者被动持续 1 → 1.5 秒、归尘 20 → 30%、流星连珠 80 → 90% 与实际落地一致。</p><span class="time-tag">产出｜方案清单 + 配置落地</span></div></article>
+          <article class="timeline-row"><div class="timeline-date">0702</div><div class="timeline-body"><h3>完成一次完整的协作决策</h3><p>基于 0622 数据独立建立候选池，经团队从职业整体表现、英雄定位和当期范围二次筛选后，完成武则天、铠、宫本、白衡等英雄的详细数值方案与配置落地。</p><span class="time-tag">职责｜初步分析 + 方案收敛 + 数值设计 + 配置落地</span></div></article>
+          <article class="timeline-row"><div class="timeline-date">0723</div><div class="timeline-body"><h3>主导方案与配置落地</h3><p>主导凌音、鲁班、瑶削弱与苏打加强分析并完成具体配置；瑶的共生减免配置为 14% → 8%—10%，正式版本落地为 14% → 10%。</p><span class="time-tag">职责｜方案主导 + 配置落地 + 导师评审校准</span></div></article>
+          <article class="timeline-row"><div class="timeline-date">0727</div><div class="timeline-body"><h3>数据复盘与元坦生态分析</h3><p>回收0723改动方向，并与团队讨论元坦影响：其保护能力延长击杀耗时（TTK），压制安琪拉、云缨，抬高蔡文姬、刘备、玄玄子及适配坦克阵容的法师。</p><span class="time-tag">产出｜改动验证 + 0806候选清单</span></div></article>
+          <article class="timeline-row"><div class="timeline-date">0806</div><div class="timeline-body"><h3>五轮方案迭代与配置落地</h3><p>围绕玄玄子、墨子、项羽、大乔、兰陵王、阿轲、程咬金形成控制强势项、补强弱势项的方案并完成具体配置；处理对象与正式版本基本一致。</p><span class="time-tag">职责｜五轮方案迭代全程主导 + 配置落地</span></div></article>
+          <article class="timeline-row"><div class="timeline-date">0810</div><div class="timeline-body"><h3>回收效果并更新待验证分歧</h3><p>削弱对象明显回落，多数加强对象获得改善；程咬金仅小幅提升。同步回填凌音、苏打、鲁班三项分歧，形成“分析—方案—落地—验证—再判断”的闭环。</p><span class="time-tag">产出｜效果验证 + 分歧追踪 + 方法迭代</span></div></article>
+        </div>
+      </section>
+    </div>
+
+    <section class="section" id="ecosystem">
+      <div class="section-head">
+        <div><span class="section-no">06 · ECOLOGY</span><h2>三轮生态分析</h2></div>
+        <p class="section-intro">稳定复用同一范式：识别震源 → 梳理连带影响 → 判断环境受益特质 → 优先处理根因，而非逐个调整结果。</p>
+      </div>
+      <div class="ecosystem">
+        <article class="eco-card"><h3>孙悟空翻新</h3><div class="eco-flow"><div class="eco-step">高机动爆发成为刺客震源</div><div class="eco-step">射手 / 法师生存受压，自保型英雄更可能逆势受益</div><div class="eco-step">狄仁杰、杨玉环的阶段变化需进一步验证</div></div><div class="eco-result"><strong>趋势确认：</strong>孙悟空后续回落约 12 个百分点并趋于稳定；受益对象仍需按白衡上线前后的数据窗口拆分归因。</div></article>
+        <article class="eco-card"><h3>白衡上线</h3><div class="eco-flow"><div class="eco-step">宠物持续参与对抗，改变技能命中与目标选择</div><div class="eco-step">远程英雄可绕开宠物；貂蝉2技能更易命中宠物并刷新冷却时间</div><div class="eco-step">环境更有利于远程英雄及能够反制或利用宠物的英雄</div></div><div class="eco-result"><strong>趋势确认：</strong>上线初期出场接近四成，远程英雄阶段性上扬；貂蝉是否因稳定刷新2技能而受益，仍保留为待验证假设。</div></article>
+        <article class="eco-card"><h3>元坦上线</h3><div class="eco-flow"><div class="eco-step">较低操作门槛即可提供承伤与保护，治疗打法表现更突出</div><div class="eco-step">环境击杀耗时延长：安琪拉、云缨受压；蔡文姬、刘备等受益</div><div class="eco-step">先观察玩法开发，不直接集体加强受压英雄</div></div><div class="eco-result"><strong>团队结论：</strong>元坦兼具出场热度与有效强度，但多分路玩法仍有开发空间；其生态收益同时纳入玄玄子等英雄的强度判断。</div></article>
+      </div>
+    </section>
+
+    <div class="surface-band">
+      <section class="section" id="full-cases">
+        <div class="section-head">
+          <div><span class="section-no">07 · CASE INDEX</span><h2>完整案例索引</h2></div>
+          <p class="section-intro">主体展示四个最具代表性的案例；此处保留其他方案对照，便于面试时按版本进一步交流。点击展开。</p>
+        </div>
+
+        <details>
+          <summary>0618｜方案池 6 人，3 人进入当期版本</summary>
+          <div class="detail-body"><table class="case-table"><thead><tr><th>英雄</th><th>我的判断</th><th>实际落地</th><th>复盘</th></tr></thead><tbody>
+            <tr><td>星旅者（法师）</td><td>强化被动持续与核心卡牌数值</td><td>持续 1→1.5s；归尘 20→30%；流星连珠 80→90%</td><td>三项方案数值与正式版本一致，可量化参数更容易形成稳定判断。</td></tr>
+            <tr><td>绮</td><td>提高画魂积累/维持效率，强化关键卡牌</td><td>画魂衰减降低，核心卡牌惩罚降低与伤害提高</td><td>核心循环方向一致；正式版本补充本体冷却时间与伤害。</td></tr>
+            <tr><td>晴霜</td><td>强化印记、控制与卡牌循环</td><td>熊行霸道 1.5→2.5s，并补充吸血与强化普攻</td><td>持续时间数值一致，整体方向相同但具体调整点不同。</td></tr>
+            <tr><td>项羽 / 吕布 / 上官婉儿</td><td>均形成详细候选方案</td><td>未进入 0618 当期公告</td><td>复盘明确：分析方案属于候选池，需要按当期范围与优先级分批推进。</td></tr>
+          </tbody></table></div>
+        </details>
+
+        <details>
+          <summary>0702｜数据候选经定位判断收敛为版本方案</summary>
+          <div class="detail-body"><table class="case-table"><thead><tr><th>英雄</th><th>我的方案重点</th><th>实际落地</th><th>复盘</th></tr></thead><tbody>
+            <tr><td>武则天</td><td>保持前期基线，降低后期成长系数，并回收高收益卡牌</td><td>技能成长系数下调、基础值微调，核心卡同向削弱</td><td>前后期曲线处理方向一致，说明成长拆分能提高方案精度。</td></tr>
+            <tr><td>铠</td><td>从回复、留人与核心专属卡牌多点补强</td><td>留人能力与多张核心卡牌同向加强</td><td>多处数值调整点一致，后续强度与出场均明显改善。</td></tr>
+            <tr><td>白衡</td><td>小幅回收宠物强度，避免新英雄过度震荡</td><td>通过专属卡降低宠物爆发与承伤收益</td><td>削弱方向一致，实际选择了更易回滚的卡牌入口。</td></tr>
+            <tr><td>宫本</td><td>围绕强化普攻、技能伤害与护盾补足战士职业整体短板</td><td>本体技能整体加强</td><td>从单英雄数据上升到职业整体判断，方案范围由此收敛。</td></tr>
+          </tbody></table></div>
+        </details>
+
+        <details>
+          <summary>0723｜数值一致、待验证分歧与迭代验证</summary>
+          <div class="detail-body"><table class="case-table"><thead><tr><th>英雄</th><th>我的判断</th><th>实际落地 / 数据</th><th>复盘</th></tr></thead><tbody>
+            <tr><td>瑶</td><td>共生减免 14% → 8%—10%</td><td>落地为 14% → 10%</td><td>主要调整变量与幅度一致。</td></tr>
+            <tr><td>凌音</td><td>主要变量判断为坦度与控制卡牌；治疗小幅调整可能不足</td><td>此前仅削弱治疗；0810 强度信号再次上扬</td><td>保留为待验证分歧，继续跟踪坦度与控制卡牌。</td></tr>
+            <tr><td>苏打</td><td>解决火箭资源空窗期，避免继续单纯提高面板数值</td><td>落地强化护盾、伤害、空中移速与刷新</td><td>正式版本采用其他增强路径；后续呈现高强度、低出场，转为观察热度扩散。</td></tr>
+            <tr><td>鲁班七号</td><td>削弱 60% 减伤卡牌，保留本体输出</td><td>实际回调被动与技能输出，未调整该减伤卡牌</td><td>生存体验与输出能力两种切入路径存在分歧，需结合后续出场、死亡和输出数据判断。</td></tr>
+            <tr><td>狄仁杰 / 吕布 / 伽罗</td><td>狄仁杰生命值提升已生效；吕布仍可补强；伽罗观察后回收</td><td>前两项方向延续；伽罗实际采用更大幅度削弱</td><td>已形成“调整—验证—迭代”闭环；伽罗体现了版本调整幅度差异。</td></tr>
+          </tbody></table></div>
+        </details>
+
+        <details>
+          <summary>0806｜方向基本一致，本体与卡牌路径存在差异</summary>
+          <div class="detail-body"><table class="case-table"><thead><tr><th>英雄</th><th>我的判断</th><th>实际落地</th><th>复盘</th></tr></thead><tbody>
+            <tr><td>玄玄子</td><td>优先调整控制与核心卡牌，暂不调整本体伤害</td><td>结界与两张卡牌同向下调，同时调整本体伤害与冷却时间</td><td>异常判断与卡牌方向正确；对源头强度的处理幅度偏保守。</td></tr>
+            <tr><td>墨子</td><td>削弱瞬移连击爆发、射程与免伤</td><td>瞬移连击次数 3→2、伤害 60→40%，并削弱控制与强化普攻</td><td>爆发处理方向一致，具体卡牌调整点不同。</td></tr>
+            <tr><td>项羽</td><td>补充承伤与生存能力，暂不提高伤害</td><td>降低冷却时间、提高攻速并加强伤害卡牌</td><td>方案未充分覆盖战斗循环手感与战坦定位。</td></tr>
+            <tr><td>大乔</td><td>以功能和控制为重点，优先调整卡牌</td><td>显著提高技能伤害并强化大招控制</td><td>控制方向部分一致，但定位取向不同。</td></tr>
+            <tr><td>兰陵王</td><td>补充伤害，必要时本体提高约 6%—8%</td><td>增加本体伤害、检测范围与最大生命值</td><td>问题判断正确；正式版本通过基础生存属性与操作反馈更直接地解决。</td></tr>
+            <tr><td>阿轲</td><td>补强私人定制与午夜倒数，幅度相对保守</td><td>核心卡牌同向大幅加强，并提高本体伤害</td><td>核心方向一致，但对可接受的调整幅度估计偏保守。</td></tr>
+            <tr><td>程咬金</td><td>通过专属卡牌补充生存与输出循环</td><td>卡牌方向落地</td><td>0810 仅小幅改善，说明基础强度偏低的英雄仅调整卡牌可能不足。</td></tr>
+          </tbody></table></div>
+        </details>
+      </section>
+    </div>
+
+    <section class="section" id="review">
+      <div class="section-head">
+        <div><span class="section-no">08 · REFLECTION</span><h2>我如何校准自己的判断</h2></div>
+        <p class="section-intro">复盘用于明确数据能够回答的问题与能力边界，并将判断偏差转化为下一版工作流程中的校验规则。</p>
+      </div>
+      <div class="reflection">
+        <article class="boundary data"><h3>数据分析构建客观依据</h3><ul><li>高分段上限与整体玩家选择的分层观察</li><li>全英雄扫描、版本差值与生态归因</li><li>同定位横向对标与异常维度定位</li><li>选卡胜差 × 选取率四象限</li><li>伤害结构拆分与数值幅度测算</li><li>历史改动回溯与效果验证</li></ul></article>
+        <article class="boundary design"><h3>策划判断完成设计决策</h3><ul><li>操作循环、技能手感与信息清晰度</li><li>控制链、机动、命中难度与反制空间</li><li>战士型坦克 / 纯坦克、功能型法师辅助 / 输出核心法师等定位选择</li><li>公平、体验、多样性目标之间的取舍</li><li>新英雄观察期与版本改动力度</li><li>英雄本体与卡牌的调整路径选择</li></ul></article>
+      </div>
+      <div class="growth-path" aria-label="个人能力成长路径">
+        <article class="growth-step" data-date="0618"><b>学习流程</b><span>在指导下参与分析、数值设计与配置，建立方案到落地的基本认知。</span></article>
+        <article class="growth-step" data-date="0702"><b>协作决策</b><span>独立建立候选池，并把团队定位判断转化为详细数值与配置。</span></article>
+        <article class="growth-step" data-date="0723"><b>独立提案</b><span>主导削强补弱方案与具体配置，经评审校准后回收改动效果与分歧。</span></article>
+        <article class="growth-step" data-date="0806—0810"><b>完整闭环</b><span>主导多轮迭代与具体配置，完成落地对照、效果验证和下一轮观察项更新。</span></article>
+      </div>
+      <div class="growth">
+        <article class="growth-card"><b>用多目标替代单指标</b><p>每项调整先标记公平、体验、多样性或版本风险目标，再选择对应数据与验证方式。</p></article>
+        <article class="growth-card"><b>为功能机制设置体验约束</b><p>控制、位移、射程与预警统一检查反应窗口和克制空间，严重体验问题采用优先处理机制。</p></article>
+        <article class="growth-card"><b>建立待验证分歧追踪表</b><p>记录假设、实际做法、验证窗口、叠加变量与后续结果，将分歧沉淀为判断力训练样本。</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-label="作品总结">
+      <div class="closing">
+        <h2>数据回答“发生了什么”，最终目标是让玩家持续拥有多个清晰、有趣且可反制的选择。</h2>
+        <p>公平与体验划定边界，定位差异创造选择，版本验证保证生态可控。这份作品呈现了如何让每次落地结果反过来改进下一次决策。</p>
+      </div>
+      <p class="source-note">数据说明：基于峡谷 5v5 排位的多层级版本数据，覆盖 5 月下旬至 8 月中旬的多个验证窗口。为便于求职展示，胜率与出场率仅保留关键趋势或近似变化，内部字段、文件名、样本阈值与协作身份均已脱敏；公开版本改动数值按正式上线内容呈现。</p>
+    </section>
+  </main>
+
+  <footer>Felix · Game Balance Design Portfolio · 2026</footer>
+
+  <script>
+    const sections = [...document.querySelectorAll('main section[id]')];
+    const links = [...document.querySelectorAll('.nav a')];
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + visible.target.id));
+    }, { rootMargin: '-25% 0px -60% 0px', threshold: [0, .2, .5] });
+    sections.forEach(section => observer.observe(section));
+
+    const progress = document.querySelector('.read-progress');
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = `${max > 0 ? Math.min(100, window.scrollY / max * 100) : 0}%`;
+    };
+    updateProgress();
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const revealTargets = [...document.querySelectorAll('.section-head, .framework, .decision-block, .evidence-summary, .case, .timeline-row, .eco-card, details, .boundary, .growth-path')];
+      revealTargets.forEach(target => target.classList.add('reveal'));
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+      revealTargets.forEach(target => revealObserver.observe(target));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英雄数值计算方法 · 从身板到技能再到卡牌（公开作品版）</title>
+<style>
+:root{
+  --bg:#f4f7fb;--surface:#ffffff;--surface-soft:#f8faff;--ink:#182033;--muted:#667085;
+  --line:#dfe6f1;--primary:#5b5bd6;--primary-dark:#3636a8;--primary-soft:#eeefff;
+  --cyan:#13a8a8;--cyan-soft:#e8fbfa;--amber:#c77b12;--amber-soft:#fff7e8;
+  --green:#16835b;--green-soft:#eaf8f1;--shadow:0 14px 40px rgba(40,53,91,.08);
+  --shadow-sm:0 4px 16px rgba(40,53,91,.07);--radius:18px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:28px;}
+body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+background:radial-gradient(circle at 12% 0,rgba(91,91,214,.08),transparent 28rem),var(--bg);color:var(--ink);line-height:1.72;font-size:15px;}
+a{color:var(--primary);}
+.site-bar{height:68px;display:flex;align-items:center;justify-content:space-between;max-width:1320px;margin:0 auto;padding:0 28px;}
+.site-brand{display:flex;align-items:center;gap:11px;color:var(--ink);text-decoration:none;font-weight:750;letter-spacing:-.01em;}
+.brand-orb{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),#7c65ea 58%,var(--cyan));color:#fff;font:800 15px/1 ui-monospace,SFMono-Regular,Consolas,monospace;box-shadow:0 8px 18px rgba(91,91,214,.25);}
+.site-meta{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+.layout{display:flex;gap:28px;max-width:1320px;margin:0 auto;padding:0 24px 60px;align-items:flex-start;}
+aside{width:252px;flex-shrink:0;position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(255,255,255,.88);
+backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;padding:18px 12px 20px;box-shadow:var(--shadow-sm);}
+aside .brand{padding:2px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:8px;}
+aside .brand:before{content:"ON THIS PAGE";display:block;color:var(--primary);font-size:10.5px;font-weight:800;letter-spacing:.12em;margin-bottom:4px;}
+aside .brand b{display:block;font-size:14px;}aside .brand span{font-size:11.5px;color:var(--muted);}
+aside a{display:block;color:var(--muted);text-decoration:none;font-size:12.5px;line-height:1.4;padding:7px 10px;border-radius:9px;border-left:3px solid transparent;transition:.15s ease;}
+aside a:hover{color:var(--ink);background:var(--surface-soft);transform:translateX(2px);}
+aside a.active{color:var(--primary-dark);background:var(--primary-soft);border-left-color:var(--primary);font-weight:700;}
+aside a.l1{font-weight:700;color:#344054;font-size:13px;margin-top:5px;}aside a.l2{padding-left:22px;font-size:12px;}
+main{flex:1;min-width:0;max-width:1016px;background:var(--surface);border:1px solid rgba(223,230,241,.9);border-radius:24px;padding:34px 46px 88px;box-shadow:var(--shadow);}
+h1,h2,h3,h4{color:var(--ink);line-height:1.28;letter-spacing:-.025em;}
+h1{font-size:clamp(30px,4vw,44px);margin:0 0 16px;font-weight:800;max-width:780px;}
+h2{position:relative;font-size:24px;margin:52px 0 18px;padding:0 0 12px 18px;border-bottom:1px solid var(--line);font-weight:780;}
+h2:before{content:"";position:absolute;left:0;top:2px;width:5px;height:30px;border-radius:99px;background:linear-gradient(180deg,var(--primary),var(--cyan));}
+h3{font-size:19px;margin:32px 0 13px;padding-bottom:8px;border-bottom:1px dashed var(--line);font-weight:750;color:#27346a;}
+h4{font-size:15.5px;margin:24px 0 10px;color:#344054;font-weight:750;}
+p{margin:10px 0;}strong{font-weight:750;}sub{font-size:.72em;}
+code{background:var(--primary-soft);color:var(--primary-dark);padding:.16em .42em;border-radius:6px;font-family:ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;font-size:86%;}
+pre.code{background:#11182a;color:#dce7ff;padding:19px 20px;border:1px solid #26324a;border-radius:14px;overflow-x:auto;
+font-family:ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;font-size:12.5px;line-height:1.7;margin:18px 0;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow-sm);}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;}
+th,td{border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 13px;text-align:left;vertical-align:top;}
+tr>*:last-child{border-right:0;}tbody tr:last-child td{border-bottom:0;}
+th{background:linear-gradient(180deg,#f6f7ff,#eef1fb);font-weight:750;white-space:nowrap;color:#29345f;}
+tbody tr:nth-child(even){background:#fbfcff;}tbody tr:hover{background:var(--primary-soft);}
+blockquote{position:relative;margin:18px 0;padding:15px 18px 15px 52px;border:1px solid #d8dcff;border-radius:14px;background:linear-gradient(135deg,#f7f7ff,#f0f2ff);color:var(--ink);}
+blockquote:before{position:absolute;left:16px;top:16px;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:var(--primary);color:#fff;font-size:13px;font-weight:800;}
+blockquote p{margin:0;font-size:14px;}.star:before{content:"◆";}.warn{border-color:#f2d6a4;background:var(--amber-soft);}.warn:before{content:"!";background:var(--amber);}
+.ok{border-color:#bfe7d4;background:var(--green-soft);}.ok:before{content:"✓";background:var(--green);}
+ul,ol{margin:10px 0;padding-left:26px;}li{margin:5px 0;}hr{border:none;border-top:1px solid var(--line);margin:38px 0;}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#121b35 0%,#25205f 58%,#175d70 130%);color:#fff;border-radius:20px;padding:52px 44px 38px;margin-bottom:20px;box-shadow:0 22px 50px rgba(24,32,78,.2);}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none;}
+.hero:before{width:320px;height:320px;right:-105px;top:-150px;background:radial-gradient(circle,rgba(92,211,222,.28),transparent 68%);}
+.hero:after{width:240px;height:240px;left:-100px;bottom:-170px;background:radial-gradient(circle,rgba(135,111,255,.35),transparent 68%);}
+.hero>*{position:relative;z-index:1;}.hero h1{color:#fff;}.hero .meta{color:#cbd5f1;max-width:820px;font-size:13px;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;color:#a9f1ee;font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;margin-bottom:14px;}
+.hero-eyebrow:before{content:"";width:24px;height:2px;background:#53d5d0;}
+.meta{color:var(--muted);font-size:12.5px;margin:8px 0 0;}
+.tag{display:inline-block;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#eef2ff;font-size:11.5px;font-weight:650;padding:4px 10px;border-radius:999px;margin:4px 5px 3px 0;backdrop-filter:blur(6px);}
+.flow{display:flex;align-items:stretch;gap:8px;background:linear-gradient(135deg,#fbfbff,#f4fbfc);border:1px solid var(--line);border-radius:16px;padding:14px;margin:18px 0;box-shadow:var(--shadow-sm);}
+.flow .step{display:flex;align-items:center;flex:1;background:#fff;border:1px solid #dfe3f6;color:#313a70;border-radius:11px;padding:10px 11px;font-size:12.5px;font-weight:650;}
+.flow .arrow{align-self:center;color:#99a4ba;font-size:16px;flex:0 0 auto;}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:18px 0;}
+.kpis div{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:14px 8px 12px;text-align:center;box-shadow:var(--shadow-sm);}
+.kpis div:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--primary),var(--cyan));}
+.kpis b{display:block;font-size:20px;color:var(--primary-dark);line-height:1.3;font-weight:800;}.kpis span{font-size:10.8px;color:var(--muted);}
+.ref{background:var(--cyan-soft);border:1px solid #b7e8e5;color:#127a7a;font-size:12px;padding:3px 8px;border-radius:999px;font-weight:750;white-space:nowrap;}
+.symbol-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0;}
+.symbol-card{border:1px solid var(--line);border-radius:13px;padding:14px 15px;background:linear-gradient(135deg,#fff,#f8f9ff);box-shadow:var(--shadow-sm);}
+.symbol-card .input-label{display:block;color:var(--primary);font-size:10.5px;font-weight:800;letter-spacing:.08em;margin-bottom:3px;}
+.symbol-card b{display:block;font:750 14px/1.45 ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;color:#28315f;}
+.symbol-card p{font-size:12px;color:var(--muted);margin:4px 0 0;}
+.trace{margin:18px 0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#fff;box-shadow:var(--shadow-sm);counter-reset:trace;}
+.trace-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 15px;border-bottom:1px solid var(--line);}
+.trace-row:last-child{border-bottom:0;}.trace-no{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary-dark);font-weight:800;font-size:12px;}
+.trace-main b{display:block;font-size:13px;color:#29345f;}.trace-main span{display:block;margin-top:2px;color:var(--muted);font:12px/1.55 ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;}
+.trace-result{font:800 15px/1 ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;color:var(--primary-dark);white-space:nowrap;}
+@media(max-width:1080px){aside{width:220px;}main{padding-left:32px;padding-right:32px}.kpis{grid-template-columns:repeat(3,minmax(0,1fr));}.flow{flex-wrap:wrap}.flow .step{flex:1 1 42%;}.flow .arrow{display:none;}}
+@media(max-width:820px){
+  .site-bar{height:60px;padding:0 18px}.site-meta{display:none}.layout{display:block;padding:0 14px 36px}aside{display:none}
+  main{max-width:none;padding:24px 20px 64px;border-radius:20px}.hero{padding:38px 26px 30px}h2{font-size:22px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:520px){
+  body{font-size:14px}.site-brand{font-size:13px}.layout{padding-left:8px;padding-right:8px}main{padding:18px 13px 54px;border-radius:16px}.hero{padding:32px 19px 26px;border-radius:15px}
+  h1{font-size:27px}h2{font-size:20px;margin-top:42px}.flow{display:block}.flow .step{margin:7px 0}.symbol-grid{grid-template-columns:1fr}.trace-row{grid-template-columns:34px minmax(0,1fr)}.trace-result{grid-column:2;margin-top:2px}
+  th,td{padding:9px 10px}.kpis{gap:7px}blockquote{padding-left:48px}
+}
+@media print{
+  body{background:#fff}.site-bar,aside{display:none!important}.layout,main{display:block;max-width:none;padding:0;border:0;box-shadow:none}.hero{box-shadow:none}
+  h2,h3{break-after:avoid}blockquote,.flow,.kpis,pre.code,.symbol-grid,.trace{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+  <style>.portfolio-back{position:fixed;right:18px;bottom:18px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(8,17,31,.88);color:#fff;font:600 13px/1.2 "Microsoft YaHei",sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(12px)}.portfolio-back:hover{transform:translateY(-2px)}@media print{.portfolio-back{display:none}}</style>
+  <a class="portfolio-back" href="../" aria-label="返回作品集总览">← 作品集</a>
+<header class="site-bar">
+  <a class="site-brand" href="#s0"><span class="brand-orb">M</span><span>游戏数值方法论</span></a>
+  <div class="site-meta">Portfolio · Numerical Design</div>
+</header>
+<div class="layout">
+<aside>
+  <div class="brand"><b>内容导航</b><span>从身板到技能再到卡牌</span></div>
+  <a class="l1" href="#s0">〇、总览与方法地图</a>
+  <a class="l1" href="#s1">第一部分 · 身板曲线</a>
+  <a class="l2" href="#s1-1">1.1 出发点：TTK / 生命攻击比</a>
+  <a class="l2" href="#s1-2">1.2 战士 A 五步精算</a>
+  <a class="l2" href="#s1-3">1.3 类推各职业身板</a>
+  <a class="l1" href="#s2">第二部分 · 技能循环 → 秒伤</a>
+  <a class="l2" href="#s2-1">2.1 职业单位输出</a>
+  <a class="l2" href="#s2-2">2.2 技能循环定总输出</a>
+  <a class="l2" href="#s2-3">2.3 分窗口区分职业</a>
+  <a class="l1" href="#s3">第三部分 · 秒伤 → 拆 AB 值</a>
+  <a class="l2" href="#s3-1">3.1 A/B 伤害结构</a>
+  <a class="l2" href="#s3-2">3.2 反推各技能总 AB</a>
+  <a class="l2" href="#s3-3">3.3 拆段 AB（经验校验）</a>
+  <a class="l2" href="#s3-4">3.4 刺客 D 实例</a>
+  <a class="l1" href="#s4">第四部分 · 卡牌属性价值</a>
+  <a class="l1" href="#s5">方法、输入与验证</a>
+</aside>
+<main>
+
+<div class="hero">
+  <div class="hero-eyebrow">Game Numerical Design · Method 03</div>
+  <h1>英雄数值计算方法 · 从身板到技能再到卡牌</h1>
+  <p class="meta">一条来自项目实践的英雄数值设计链路：身板曲线（TTK/生命攻击比出发）→ 技能循环秒伤 → A/B 值拆分 → 卡牌属性价值。四部分共享同一套单价与口径，并在关键阶段反向验算。</p>
+  <div style="margin-top:10px;">
+    <span class="tag">TTK / 生命攻击比锚点</span>
+    <span class="tag">战士 A 五步精算</span>
+    <span class="tag">职业系数批量落地</span>
+    <span class="tag">循环秒伤 · 分窗口</span>
+    <span class="tag">A/B 值伤害结构</span>
+    <span class="tag">金本位属性单价</span>
+  </div>
+  <p class="meta">李小龙（felixiaoli）· 某轻竞技 MOBA 项目 · 公开作品版</p>
+</div>
+
+<blockquote class="ok">
+  <p><strong>公开版说明</strong>：项目名、英雄名、版本信息与部分绝对数值已做代称或指数化处理；属性比例、公式结构、推导顺序和判断过程保持不变。本文展示的是本人在项目中的分析与计算方法，不代表完整商业数据。</p>
+</blockquote>
+
+<h2 id="s0">〇、总览与方法地图</h2>
+
+<p>这套方法回答一个项目问题：<strong>当英雄身板、技能伤害和卡牌预算需要统一口径时，如何让关键数字有来源、能复算、可反验。</strong>四个部分首尾相接，构成一条从目标到落地的工作链：</p>
+
+<div class="flow">
+  <span class="step">① 身板曲线（TTK/生命攻击比 → 锚点五步 → 职业系数）</span><span class="arrow">→</span>
+  <span class="step">② 职业单位输出 + 技能循环秒伤（分窗口）</span><span class="arrow">→</span>
+  <span class="step">③ 秒伤反推各技能 A/B 值（拆段 + 经验目标校验）</span><span class="arrow">→</span>
+  <span class="step">④ 卡牌属性价值（金本位单价 · 与本体同口径）</span>
+</div>
+
+<blockquote class="star">
+  <p><strong>方法链的内在一致性</strong>：身板给出「目标有多硬」；目标 TTK 与有效生命共同约束「该打多少」；A/B 拆分把预算落到每段每跳；卡牌用<strong>同一套属性单价</strong>评估增量内容。四层共享属性比例、技能占比、覆盖率等口径，并通过结果回测形成闭环。</p>
+</blockquote>
+
+<div class="kpis">
+  <div><b>1 个</b><span>锚点英雄精算（战士 A）</span></div>
+  <div><b>N 个</b><span>职业系数批量落地</span></div>
+  <div><b>2 段</b><span>A/B 伤害结构</span></div>
+  <div><b>7:3</b><span>项目样本经验锚点</span></div>
+  <div><b>9 类</b><span>卡牌换算套路</span></div>
+  <div><b>4 档</b><span>成长节奏快照校验</span></div>
+</div>
+
+<p>以下以项目过程中的脱敏样本说明：身板用<strong>「五步锚点法」</strong>（算一个英雄、批量落地全职业）、技能用<strong>「A/B 值伤害结构分析」</strong>（A 值占比演化曲线诊断定位）、卡牌用<strong>「属性价值单价」</strong>统一评估增量内容，并以<strong>「诊断 ≠ 治疗」</strong>作为贯穿全程的读表态度。</p>
+
+<blockquote class="warn">
+  <p><strong>输入不是只有一个数</strong>：方法包含 1 个策划直接锚点，以及成长压缩参数、版本单价修正、目标 TTK、命中/覆盖率等校准参数。正文会把「直接输入」「项目经验参数」和「公式推导结果」分开标注，避免把经验选择写成数学定理。</p>
+</blockquote>
+
+<h2 id="s1">第一部分 · 身板曲线：从 TTK / 生命攻击比出发</h2>
+
+<h3 id="s1-1">1.1 出发点：为什么身板锚定 TTK 与生命攻击比</h3>
+<p>身板（生命 / 攻击 / 防御）不是拍脑袋给的，它的两个锚点是：</p>
+<ul>
+  <li><strong>TTK（击杀耗时）</strong>——一个英雄面对标准目标应该多久被打死，决定生命+防御这条「抗性线」；</li>
+  <li><strong>生命攻击比 = 生命 ÷ 攻击</strong>——衡量「每 1 点攻击背后对应多少生命」。下文统一使用这一方向，不再使用倒数或“攻血比”简称。</li>
+</ul>
+<p>对标 MOBA 与项目旧版的脱敏样本显示：<strong>对标英雄的生命攻击比相对集中，项目旧版更分化、且整体偏高</strong>。这意味着部分英雄即使不额外投入坦度也偏肉，同时「选攻击属性」可能比设计预期更划算。这个结论用于诊断职业结构，不能把对标绝对值直接照搬到目标版本。</p>
+
+<blockquote class="warn">
+  <p><strong>读表态度：诊断 ≠ 治疗</strong>。动手翻译前先分清手里的表是「诊断（现状描述）」还是「治疗（调整目标）」。上面的生命攻击比结论是<strong>诊断</strong>——它告诉你现状偏在哪；真正的目标身板是<strong>治疗</strong>——要按目标方向重算，而不是把现状数字直接当目标。这条态度决定了下面每一步该怎么用。</p>
+</blockquote>
+
+<h3 id="s1-2">1.2 以战士 A 为例：五步精算（旧版 → 目标版）</h3>
+<p>身板翻译采用「算 1 个 → 落地 N 个」的产线。<strong>战士 A 是身板锚点英雄</strong>：策划先给定目标版 2 级生命，再借用对标英雄的同阶段属性结构与本项目校准参数推导其余结果。这里的层级映射是<strong>对标 1 级 → 本项目 2 级、对标 15 级 → 本项目 15 级</strong>；公开版将目标 2 级生命指数化为 <strong>1000</strong>。</p>
+
+<div class="symbol-grid">
+  <div class="symbol-card"><span class="input-label">对标结构 · 前期</span><b>生命攻击比 ≈ 17.44</b><p>对标战士 A 的 1 级生命 ÷ 攻击；用于映射本项目 2 级。</p></div>
+  <div class="symbol-card"><span class="input-label">对标结构 · 后期</span><b>生命攻击比 ≈ 20.57</b><p>对标战士 A 的 15 级生命 ÷ 攻击；用于本项目 15 级。</p></div>
+  <div class="symbol-card"><span class="input-label">对标成长</span><b>15 / 1 级生命成长 ≈ 2.22 倍</b><p>作为目标版后期生命成长的参考幅度。</p></div>
+  <div class="symbol-card"><span class="input-label">项目校准 · 成长</span><b>成长压缩指数 = 0.75</b><p>推测主要考虑两款游戏单局时长与成长节奏差异，用 0.75 次方限制成长幅度。</p></div>
+  <div class="symbol-card"><span class="input-label">项目校准 · 裸装攻击</span><b>攻击单价修正 = 13.75 ÷ 15 ≈ 91.67%</b><p>13.75 是对标项目每点攻击单价，15 是目标版单价；用于把对标身板推得的裸装攻击换算到目标版。</p></div>
+  <div class="symbol-card"><span class="input-label">项目校准 · 装备增量</span><b>旧装备攻击折算 = 25 ÷ 15 ≈ 1.67 倍</b><p>25 是本项目旧版每点攻击单价，15 是目标版单价；只换算旧装备提供的攻击增量。</p></div>
+</div>
+<p class="meta"><strong>两者都是属性价值口径换算，不是伤害倍率</strong>：攻击单价修正作用于裸装攻击，旧装备攻击折算只作用于装备增量。</p>
+
+<div class="trace" aria-label="战士 A 五步推导">
+  <div class="trace-row"><span class="trace-no">01</span><div class="trace-main"><b>确定目标版 2 级生命</b><span>H₂ = 策划锚点（公开版指数化）</span></div><span class="trace-result">1000.00</span></div>
+  <div class="trace-row"><span class="trace-no">02</span><div class="trace-main"><b>用前期生命攻击比挂钩攻击</b><span>目标攻击 = 目标生命 ÷ 前期生命攻击比 × (对标攻击单价13.75 ÷ 目标版单价15)</span></div><span class="trace-result">52.55</span></div>
+  <div class="trace-row"><span class="trace-no">03</span><div class="trace-main"><b>压缩对标成长幅度，推到 15 级生命</b><span>15级生命 = 2级生命 × (对标15/1级生命成长)^0.75 = 1000 × 2.22^0.75</span></div><span class="trace-result">1820.38</span></div>
+  <div class="trace-row"><span class="trace-no">04</span><div class="trace-main"><b>换用后期生命攻击比计算 15 级攻击</b><span>15级攻击 = 15级生命 ÷ 后期生命攻击比 × (对标攻击单价13.75 ÷ 目标版单价15)</span></div><span class="trace-result">81.12</span></div>
+  <div class="trace-row"><span class="trace-no">05</span><div class="trace-main"><b>折算旧版装备攻击增量并加回</b><span>满装攻击 = 15级攻击 + 旧装备攻击增量 × (旧版单价25 ÷ 目标版单价15)</span></div><span class="trace-result">84.96</span></div>
+</div>
+
+<p class="meta">以上比例为便于阅读的四舍五入值，底层复算使用未截断参数，因此按展示值手算时末位可能有微小差异。0.75 是项目经验参数，其设计动机大概率是限制不同单局时长下的成长幅度，不是通用常数。</p>
+
+<h3 id="s1-3">1.3 类推各职业身板比例：比值映射 → 职业系数 → 批量落地</h3>
+<p>从战士 A 一个精算英雄出发，四阶段扩展到全英雄全等级：</p>
+<div class="flow">
+  <span class="step">阶段1 五步精算战士 A</span><span class="arrow">→</span>
+  <span class="step">阶段2 比值映射到各职业锚点英雄</span><span class="arrow">→</span>
+  <span class="step">阶段3 反推职业系数（新值÷旧值，两端+线性插值）</span><span class="arrow">→</span>
+  <span class="step">阶段4 任意英雄 = 旧身板 × 职业系数</span>
+</div>
+
+<h4>阶段 2 · 三种属性、三种算法（不能一刀切）</h4>
+<div class="tw"><table>
+  <thead><tr><th>属性</th><th>算法</th><th>原因</th></tr></thead>
+  <tbody>
+    <tr><td><strong>生命</strong></td><td>比值映射：锚点目标生命 = 战士 A 目标生命 × (对标该英雄生命/对标战士 A 生命)</td><td>相对比例稳定，可直接放大</td></tr>
+    <tr><td><strong>攻击</strong></td><td>不走生命的比例映射，各自套「目标生命 ÷ 对标该英雄生命攻击比 × (对标攻击单价13.75 ÷ 目标版单价15)」</td><td>生命攻击比会随英雄和等级变化，用战士 A 的比例会偏</td></tr>
+    <tr><td><strong>防御</strong></td><td>精算战士 A、射手 B、法师 C 三个样本，再近似收敛为统一系数</td><td>项目的开战等级与初始防御有统一基准，直接比值映射会破坏该基准</td></tr>
+    <tr><td><strong>法师法强</strong></td><td>法强 = 同档射手 B 的目标攻击</td><td>该项目法师以法强承担主要输出，与射手攻击使用同档预算</td></tr>
+  </tbody>
+</table></div>
+
+<h4>验算样例（射手 B 的目标版 2 级攻击）</h4>
+<pre class="code">对标射手 B 1级生命攻击比 ≈ 18.17
+射手 B / 战士 A 的对标生命比 ≈ 0.9267
+射手 B 目标版2级生命 = 1000 × 0.9267 = 926.70
+射手 B 目标版2级攻击 = 926.70 ÷ 18.17 × (13.75 ÷ 15) = 46.75  ✓ 与指数化项目值吻合</pre>
+
+<h4>防御样本的近似收敛（阶段 2 → 3 的校准依据）</h4>
+<p>防御不能直接照搬生命的比值映射，因为目标版开战等级使用统一的初始防御。这里先用两条路径计算代表英雄的目标版 15 级防御，再除以各自旧版 15 级防御，观察能否收敛到一个便于批量使用的系数：</p>
+<div class="symbol-grid">
+  <div class="symbol-card"><span class="input-label">方法 A · 成长压缩</span><b>目标15级防御 = 统一开战防御 × (对标15级防御 ÷ 对标1级防御)<sup>0.75</sup></b><p>战士 A、射手 B 分别使用自己的对标防御成长，限制完整成长幅度。</p></div>
+  <div class="symbol-card"><span class="input-label">方法 B · 比值映射交叉验证</span><b>目标15级防御 = (战士A目标15防 ÷ 对标战士A 15防) × 对标法师C 15防</b><p>用战士 A 的“对标→目标版”转换比例映射法师 C，验证另一条路径是否得到相近结果。</p></div>
+</div>
+<div class="tw"><table>
+  <thead><tr><th>英雄</th><th>路径</th><th>目标版/旧版比值</th><th>观察</th></tr></thead>
+  <tbody>
+    <tr><td>战士 A</td><td>方法 A（成长压缩）</td><td>0.8327</td><td>略低于统一系数</td></tr>
+    <tr><td>射手 B</td><td>方法 A</td><td>0.8503</td><td>接近统一系数</td></tr>
+    <tr><td>法师 C</td><td>方法 B（战士 A 比值映射）</td><td>0.8539</td><td>接近统一系数</td></tr>
+  </tbody>
+</table></div>
+<blockquote class="ok">
+  <p><strong>取值过程</strong>：每个样本的系数都由<code>目标版15级防御 ÷ 旧版15级防御</code>得到。三个结果为 0.8327、0.8503、0.8539，均值约为 <strong>0.8456</strong>，且两个样本直接落在 0.85 附近，因此项目阶段将其简化为跨职业统一系数 <strong>0.85</strong>。</p>
+</blockquote>
+<p class="meta">落地时，目标版 15 级防御 = 旧版 15 级防御 × 0.85；开战等级仍使用统一初始防御，中间等级在两个端点之间线性插值。0.85 是小样本近似，不是数学定理，仍需通过全量英雄分布与实机 TTK 复核异常点。</p>
+
+<blockquote class="star">
+  <p><strong>阶段 3–4 · 职业系数产线的价值</strong>：锚点英雄「目标值 ÷ 旧值」得到 2 级与 15 级两端系数，中间 3~14 级线性插值，形成职业 × 等级的系数表。之后任意英雄可按<code>目标身板 = 旧身板 × 该等级职业系数</code>批量生成初稿。它能保留旧版的相对结构并显著降低批处理成本，但旧版已有异常不会自动消失，仍需单英雄回测。</p>
+</blockquote>
+
+<h2 id="s2">第二部分 · 技能循环 → 秒伤</h2>
+
+<p>身板定了「目标有多硬」，第二部分回答「这个英雄该打多少」。先给整个职业定输出基准，再落到具体英雄的循环秒伤。</p>
+
+<h3 id="s2-1">2.1 职业单位输出：身板 + 假设 TTK 反推</h3>
+<p>在具体到某英雄之前，先明确计算边界，再用标准目标与目标 TTK 反推职业输出基准线：</p>
+<div class="tw"><table>
+  <thead><tr><th>口径</th><th>本文采用的标准场景</th></tr></thead>
+  <tbody>
+    <tr><td><strong>对抗对象</strong></td><td>标准攻击方对标准防守方的一次满血、单目标交战；群体价值另用命中人数与覆盖率修正</td></tr>
+    <tr><td><strong>伤害类型</strong></td><td>物理/法术伤害分别经过对应防御；真实伤害不经过防御，单独计入输出</td></tr>
+    <tr><td><strong>防御交互</strong></td><td>穿透与减防先修正目标防御，再进入有效生命公式；高防/低防目标需要分别复核</td></tr>
+    <tr><td><strong>生存修正</strong></td><td>护盾、回复、免伤在基础身板之外折算为实战有效生命修正，不混入初始生命锚点</td></tr>
+    <tr><td><strong>时间定义</strong></td><td>TTK 指标准目标从满血到被击杀的时间；对线/团战时长属于输出观察窗口</td></tr>
+  </tbody>
+</table></div>
+<pre class="code">职业单位输出(DPS) ≈ 目标有效生命 ÷ 假设 TTK
+
+  目标有效生命 = 标准身板生命 × (1 + 修正后防御/K)  # 适用于 Defense/(Defense+K) 的除法减伤
+  假设 TTK     = 该职业击杀标准目标的预期耗时       # 例如脆皮后期约 3~5s
+  输出观察窗口 = 对线约 10s / 团战约 15s            # 用于技能次数与覆盖率，不等同于 TTK</pre>
+<p>K、目标 TTK 与标准目标身板都属于项目口径输入。产物是「职业级输出基准线」：刺客可在短窗口显著高于基准，辅助的纯伤害可低于基准，因为其预算还包含控制与功能性。完成技能分配后，再用实际伤害反算 TTK，检查身板和输出是否共同满足目标。</p>
+
+<h3 id="s2-2">2.2 技能循环：英雄输出的度量容器</h3>
+<p>到具体英雄，输出按<strong>「一个完整技能循环」</strong>度量：按 CD 实际能打出的一套连招，循环内总伤害除以循环时长即期望秒伤。</p>
+<pre class="code">期望秒伤 = 循环总伤害 ÷ 循环时长
+循环总伤害 = Σ( 技能_i 单次伤害 × 循环内释放次数 n_i )，  n_i = 循环时长 ÷ 技能_i 的CD（向上取整，大招通常 n=1）</pre>
+<p class="meta">释放次数公式用于快速估算，默认首个技能在 0 秒释放、观察窗口右端不重复计入，且暂不考虑前后摇、充能、资源和技能互斥；复杂英雄改用释放时间轴逐事件累计。</p>
+<blockquote class="star">
+  <p><strong>项目校准锚点：约 4000% 满循环期望</strong>。该数值来自项目样本归纳，公开版保留量级、不代表行业通用常数。记循环锚点为 <code>C_loop</code>，则<code>归一化循环强度 = Σ(技能系数 × 命中修正 × 伤害次数) ÷ C_loop</code>；它用于快速比较同口径英雄，最终仍以窗口伤害与反算 TTK 为准。</p>
+</blockquote>
+
+<h3 id="s2-3">2.3 关键：秒伤要分时间窗口看</h3>
+<blockquote class="warn">
+  <p><strong>单一「平均秒伤」会骗人。</strong>同样的循环总伤害，摊在不同时间窗口上形状完全不同：刺客集中在最初 2~3 秒（爆发），射手均匀铺满整段（持续）。只比笼统 DPS，会把两类完全不同的英雄错误地当成等强。</p>
+</blockquote>
+<p>所以要同时看 <strong>2s / 3s / 5s / 10s</strong> 多个窗口的秒伤，用「伤害形状」区分职业：</p>
+<div class="tw"><table>
+  <thead><tr><th>职业/类型</th><th>伤害形状</th><th>3 秒窗口</th><th>持续 DPS</th><th>度量的尺子</th></tr></thead>
+  <tbody>
+    <tr><td><strong>刺客（爆发）</strong></td><td>前 2~3 秒打完绝大部分，之后进 CD 真空</td><td><strong>显著高</strong></td><td>低</td><td>满连爆发 / 短窗口秒伤</td></tr>
+    <tr><td><strong>射手（持续）</strong></td><td>普攻为主，均匀铺满整段</td><td>中等平稳</td><td><strong>稳定均衡</strong></td><td>持续 DPS</td></tr>
+    <tr><td><strong>法师（混合）</strong></td><td>技能爆发 + 普攻补充</td><td>较高</td><td>中</td><td>两个窗口都看</td></tr>
+    <tr><td><strong>战士/坦克</strong></td><td>依赖持续贴脸，偏后段</td><td>低</td><td>中</td><td>持续 DPS + 有效生命</td></tr>
+  </tbody>
+</table></div>
+<p>窗口选择由目标 TTK 与战斗场景共同决定：脆皮后期 TTK 约 3~5 秒，因此 3/5 秒窗口回答「一次击杀窗口内能打出多少」；10 秒窗口用于观察持续输出。它们是输出观察窗口，不等同于整场团战时长。</p>
+
+<h2 id="s3">第三部分 · 秒伤 → 拆 A/B 值</h2>
+
+<p>拿到循环总伤害预算后，进入最核心的 A/B 拆分——即<strong>「A/B 值伤害结构分析」</strong>：把技能伤害拆成「A × 攻击力 + B」两段，用 A 值占比的演化曲线诊断英雄的装备依赖度与前后期节奏。<strong>有对标英雄时，可跳过第一、二部分，直接从这里的「技能占比拆分」开始。</strong></p>
+
+<h3 id="s3-1">3.1 A/B 伤害结构与「A 值占比演化曲线」</h3>
+<pre class="code">技能伤害 = A × 攻击力 + B
+A 值占比 = (A × 攻击力) ÷ 技能伤害</pre>
+<p>公式简单，但<strong>「攻击力」的定义在不同机制里不一样，这是整套方法的关键</strong>：项目旧版 A 乘的是「最终攻击力（基础+成长+装备）」，前期 A 部分就有值；对标 MOBA 的 A 乘的是「额外攻击力（仅装备）」，裸装时额外攻击=0、A 部分几乎为 0。<strong>看 A 值占比从前期到满装的演化曲线，就能识别机制、读出英雄的装备依赖度与前后期节奏。</strong></p>
+<div class="tw"><table>
+  <thead><tr><th>A%/B% 形态</th><th>演化特征</th><th>设计含义</th></tr></thead>
+  <tbody>
+    <tr><td>A% 高且平（如 55%→70%）</td><td>曲线扁平</td><td>「出场就完整」，前期强、不太吃发育</td></tr>
+    <tr><td>A% 低起点陡升（如 0%→58%）</td><td>曲线陡升</td><td>「满装才完整」，强发育曲线、后期核心</td></tr>
+    <tr><td>A=1 / B=0（纯系数）</td><td>完全吃攻击</td><td>普攻 / 强 carry 定位</td></tr>
+    <tr><td>A=0 / B=1（纯固定）</td><td>不吃攻击</td><td>前期保底、后期偏平</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="s3-2">3.2 从秒伤反推各技能总 A、总 B</h3>
+<div class="flow">
+  <span class="step">循环秒伤目标</span><span class="arrow">→</span>
+  <span class="step">× 循环时长 = 总伤害预算</span><span class="arrow">→</span>
+  <span class="step">按技能占比 w_i 分配</span><span class="arrow">→</span>
+  <span class="step">每技能拆 A/B</span>
+</div>
+<pre class="code">循环总伤害预算 = 期望秒伤 × 循环时长
+技能 i 伤害预算 = 循环总伤害预算 × w_i        # w_i = 该技能占总输出的权重，Σw_i = 1
+技能 i 的总A = (伤害预算 × A基础比例) ÷ 系数属性(该等级攻击/法强)
+技能 i 的总B =  伤害预算 × B基础比例         # A基础比例 + B基础比例 = 1.0（项目样本口径）</pre>
+
+<blockquote class="star">
+  <p><strong>反向校验</strong>：上述方法先在选定等级快照分配预算，再用 <code>D_t = A × 属性_t + B_t</code> 检查 1级 / 4级 / 15级 / 满装四档伤害。如果前后期曲线偏离职业目标，就回调 A基础比例、B成长或技能权重，而不是只保证单一快照成立。</p>
+</blockquote>
+
+<h3 id="s3-3">3.3 拆段 A/B：命中/覆盖假设 + 经验目标校验</h3>
+<p>拿到技能总 A、总 B 后，按单技能效果与命中假设拆到每段每跳，用三个旋钮（多段技能）：</p>
+<div class="tw"><table>
+  <thead><tr><th>符号</th><th>含义</th><th>控制什么</th></tr></thead>
+  <tbody>
+    <tr><td><strong>H</strong></td><td>该段占技能总伤的比例（同技能 ΣH=1）</td><td>段在技能内的相对权重</td></tr>
+    <tr><td><strong>G</strong></td><td>命中系数 = 命中人数 × 覆盖率</td><td>多难打中（持续段易跳空 / AOE 命中多人）</td></tr>
+    <tr><td><strong>I</strong></td><td>伤害次数（打几跳）</td><td>持续段几跳 / 瞬爆段 1 跳</td></tr>
+  </tbody>
+</table></div>
+<pre class="code">单段单跳 A = 总A × H ÷ G ÷ I
+单段单跳 B = 总B × H ÷ G ÷ I
+# 项目样本的校验锚点：选定快照下，实战 A 伤害 : B 伤害约为 7:3</pre>
+<blockquote class="warn">
+  <p><strong>7:3 不是通用定律</strong>：它是该项目部分样本在选定等级/装备快照下的经验锚点，用于检查成长伤害与固定伤害是否明显失衡。不同职业、技能形态与成长定位可以使用不同目标区间；同时要区分「预算字段中的 A/B 基础比例」与「实际打出的 A/B 伤害比例」。</p>
+</blockquote>
+
+<h3 id="s3-4">3.4 实例：刺客 D 的 1 技能（项目旧版 vs 对标）</h3>
+<div class="tw"><table>
+  <thead><tr><th>阶段</th><th>项目旧版（A×最终攻击）</th><th>对标 MOBA（A×额外攻击）</th></tr></thead>
+  <tbody>
+    <tr><td>示例 A / B（1级/满级）</td><td>A=1.30，B=108/188</td><td>A=0.65，B=140/235</td></tr>
+    <tr><td>前期裸装伤害</td><td>1.30×100+108 = 238，<strong>A%=54.6%</strong></td><td>0.65×0+140 = 140，<strong>A%=0%</strong></td></tr>
+    <tr><td>满装伤害</td><td>1.30×350.7+188 ≈ 644，<strong>A%=70.8%</strong></td><td>0.65×500+235 = 560，<strong>A%=58.0%</strong></td></tr>
+  </tbody>
+</table></div>
+<p class="meta">本表绝对值已指数化，保留原案例的 A 值占比曲线，用于说明“最终攻击”与“额外攻击”两种机制的成长差异。</p>
+<blockquote class="ok">
+  <p>读出两件事：项目旧版曲线扁平（54.6%→70.8%，约差 16pp）→「出场就较完整」；对标曲线陡升（0%→58%，差 58pp）→「满装才完整」。<strong>同样写作 A×攻击+B，在两套属性定义下会形成不同的成长节奏</strong>——因此不能直接倍乘对标 A 值，必须先确认 A 乘的是「最终攻击」还是「额外攻击」。</p>
+</blockquote>
+
+<h2 id="s4">第四部分 · 卡牌属性价值计算</h2>
+
+<p>英雄本体（身板 + 技能 A/B）做完后，同一套口径还能复用于专属卡牌：把卡牌效果换算成「等效属性价值」，对齐品质预算。这里仅保留与英雄本体模型直接相连的核心方法；完整卡牌设计与落地过程在独立作品中展开。</p>
+
+<h3>一句话原理 + 金本位单价</h3>
+<blockquote class="star">
+  <p><strong>卡牌不是直接“拍一个数”，而是先估算它相当于玩家获得了多少属性。</strong>属性单价来自初级单属性装备的「价格 ÷ 属性数值」。公开版以生命单价归一化为 1，并对其他单价取近似值（攻击≈14 / 防御≈3 / 冷缩≈60），用于展示换算关系，不代表线上绝对配置。</p>
+</blockquote>
+<pre class="code">属性单价 = 初级单属性装价格 ÷ 属性数值          # 原始锚点
+理论价值 = Σ(属性数值 × 该属性单价)              # 卡牌的可量化部分
+价值倍率 = 理论价值 ÷ 品质预算                   # 诊断偏高/偏低，不直接替代体验判断</pre>
+
+<h3>品质锚点 + 九类换算套路</h3>
+<div class="kpis">
+  <div><b>1.0B</b><span>基础品质 ≈ 全程 20% 增伤</span></div>
+  <div><b>1.5B</b><span>进阶品质 ≈ 全程 30% 增伤</span></div>
+  <div><b>2.0B</b><span>核心品质 ≈ 全程 40% 增伤</span></div>
+</div>
+<p><code>B</code> 表示脱敏后的基础品质预算。把形态各异的效果统一折算成「等效属性价值」，常用九类套路如下：</p>
+<div class="tw"><table>
+  <thead><tr><th>套路</th><th>关键词</th><th>公式骨架</th></tr></thead>
+  <tbody>
+    <tr><td>① 直给属性</td><td>+N 攻击/防御</td><td><code>数值 × 单价</code></td></tr>
+    <tr><td>② 百分比+修正链</td><td>X% 增伤/吸血/免伤</td><td><code>数值% × 修正... × 单价</code></td></tr>
+    <tr><td>③ 直接伤害</td><td>造成 X% 伤害</td><td><code>系数 ÷ C_loop × 增伤单价 × 命中修正</code></td></tr>
+    <tr><td>④ 复合多属性</td><td>一卡多属性</td><td><code>Σ(数值×单价) × 公共修正</code></td></tr>
+    <tr><td>⑤ 触发型</td><td>每次触发独立结算</td><td><code>单次 × 次数 × 单价</code></td></tr>
+    <tr><td>⑥ 覆盖率型</td><td>buff 持续 N 秒</td><td><code>数值 × 覆盖率 × 单价</code></td></tr>
+    <tr><td>⑦ 减CD型</td><td>减 X% 冷却</td><td><code>减CD÷(1-减CD) × 输出占比 × 冷缩单价</code></td></tr>
+    <tr><td>⑧ DOT多跳</td><td>每秒生效持续 N 秒</td><td><code>单跳 × 跳数 × 覆盖率 × 触发次数 × 单价</code></td></tr>
+    <tr><td>⑨ 复杂联动简化</td><td>资源循环/状态联动</td><td><code>变化幅度 × 模块占比 × 对应单价</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3>与技能侧共用的口径（工具链的接点）</h3>
+<div class="tw"><table>
+  <thead><tr><th>参数</th><th>技能侧的角色</th><th>卡牌侧取值参考</th></tr></thead>
+  <tbody>
+    <tr><td>技能占比 w_i</td><td>循环总伤害分配权重</td><td>普攻 0.25~0.50 / 1技 0.30~0.40 / 大招 0.40~0.60</td></tr>
+    <tr><td>观察窗口次数</td><td>窗口内技能释放次数 n_i</td><td>按技能 CD、前后摇与窗口长度确定；快速估算可用项目经验区间</td></tr>
+    <tr><td>覆盖率</td><td>持续段实际生效比例（G 的一部分）</td><td>持续÷触发周期；永久 1.0</td></tr>
+    <tr><td>过防御减免</td><td>百分比最大生命伤害折算</td><td><code>÷(1+标准防御/K)</code>，K 与标准目标沿用 2.1 的同一口径</td></tr>
+  </tbody>
+</table></div>
+<blockquote class="warn">
+  <p><strong>方法边界（诚实声明）</strong>：计算结果只代表可量化部分。控制、位移、免疫等难量化机制不硬编一个“精确系数”，而是在品质预算中预留机制空间，并通过实机测试逐步收敛；存在共振或互斥的成套卡需要合并计算。</p>
+</blockquote>
+
+<h2 id="s5">各部分的方法、输入与验证</h2>
+<p>为避免把经验参数包装成唯一答案，下面把每一部分的输入、方法与验证方式放在同一张表中：</p>
+<div class="tw"><table>
+  <thead><tr><th>本文部分</th><th>主要输入</th><th>方法</th><th>验证方式</th></tr></thead>
+  <tbody>
+    <tr><td>第一部分 1.1</td><td>目标 TTK、生命攻击比、版本目标</td><td>现状诊断与目标治疗分离</td><td>职业分布与异常英雄检查</td></tr>
+    <tr><td>第一部分 1.2</td><td>战士 A 直接锚点、前后期生命攻击比、对标生命成长、成长压缩、对标/目标攻击单价比、旧版/目标攻击单价比</td><td>五步锚点法</td><td>指数值逐步代入复算</td></tr>
+    <tr><td>第一部分 1.3</td><td>职业锚点与旧版身板</td><td>比值映射 + 系数批量落地</td><td>三样本近似收敛 + 全量异常复核</td></tr>
+    <tr><td>第二部分 2.1</td><td>标准目标、K、目标 TTK</td><td>有效生命反推 DPS</td><td>用实际输出反算 TTK</td></tr>
+    <tr><td>第二部分 2.2–2.3</td><td>CD、命中、次数、观察窗口、C_loop</td><td>循环秒伤 + 分窗口画像</td><td>2s/3s/5s/10s 累计伤害对照</td></tr>
+    <tr><td>第三部分 3.1–3.4</td><td>技能权重、A/B 比例、H/G/I</td><td>A/B 结构分析与拆段</td><td>1/4/15/满装四档成长快照</td></tr>
+    <tr><td>第四部分</td><td>属性单价、品质预算、覆盖率</td><td>等效属性价值折算</td><td>理论预算 + 实机体验双重校验</td></tr>
+  </tbody>
+</table></div>
+
+<blockquote class="star">
+  <p><strong>验证层级</strong>：① 公式与单位复算；② 代表英雄样本回测；③ 四档成长与多时间窗口检查；④ 实机测试或版本数据复盘。前三级用于给出可解释的初始值，第四级决定最终是否落地。</p>
+</blockquote>
+
+<hr>
+<p class="meta">
+李小龙（felixiaoli）· 公开作品版 · 基于某轻竞技 MOBA 项目实践整理。项目名、英雄名、版本信息与部分绝对数值已脱敏；比例关系、计算逻辑与工作结论保持一致。
+</p>
+</main>
+</div>
+<script>
+const links=[...document.querySelectorAll('aside a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function upd(){
+  let i2=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)i2=i;});
+  links.forEach(a=>a.classList.remove('active'));
+  if(links[i2])links[i2].classList.add('active');
+}
+document.addEventListener('scroll',upd,{passive:true});upd();
+</script>
+</body>
+</html>

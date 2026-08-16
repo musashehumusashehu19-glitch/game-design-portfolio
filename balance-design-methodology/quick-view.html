@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Felix 的元梦峡谷平衡性策划求职作品3分钟速览：项目背景、个人职责、玄玄子主案例与版本验证。">
+  <title>3分钟速览｜元梦峡谷平衡性策划作品</title>
+  <style>
+    :root {
+      --paper: #f3f0e9;
+      --surface: #fffdf8;
+      --ink: #19211f;
+      --muted: #68706c;
+      --line: #d8d3c9;
+      --teal: #0d6b5c;
+      --teal-deep: #084d43;
+      --teal-soft: #dcebe6;
+      --orange: #d5612b;
+      --orange-soft: #f8e4d7;
+      --blue: #2f5e86;
+      --blue-soft: #e0eaf2;
+      --yellow: #996f17;
+      --yellow-soft: #f4ead1;
+      --sans: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --serif: "Songti SC", "STSong", "Noto Serif SC", serif;
+      --shadow: 0 18px 60px rgba(25, 33, 31, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 82px; }
+    body {
+      margin: 0; color: var(--ink); background:
+        radial-gradient(circle at 4% 0%, rgba(13,107,92,.12), transparent 27rem),
+        radial-gradient(circle at 96% 24%, rgba(213,97,43,.08), transparent 24rem),
+        var(--paper);
+      font-family: var(--sans); font-size: 16px; line-height: 1.7; text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; }
+    strong { font-weight: 780; }
+    :focus-visible { outline: 3px solid rgba(213,97,43,.44); outline-offset: 3px; }
+
+    .topbar { position: sticky; z-index: 20; top: 0; border-bottom: 1px solid rgba(216,211,201,.82); background: rgba(243,240,233,.92); backdrop-filter: blur(16px); }
+    .topbar-inner { width: min(1120px, calc(100% - 40px)); height: 66px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 820; }
+    .brand-mark { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 9px; color: #fff; background: var(--teal); font-size: 12px; }
+    .nav { display: flex; align-items: center; gap: 4px; }
+    .nav a { padding: 7px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 12px; }
+    .nav a:hover { color: var(--teal); background: var(--teal-soft); }
+    .full-link { padding: 8px 12px !important; color: #fff !important; background: var(--teal) !important; font-weight: 780; }
+    .progress { position: absolute; left: 0; bottom: -1px; width: 0; height: 2px; background: var(--orange); }
+
+    main { overflow: hidden; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .hero { min-height: 680px; padding: 92px 0 66px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 62px; align-items: center; }
+    .eyebrow { margin: 0 0 18px; color: var(--teal); font-size: 12px; font-weight: 850; letter-spacing: .16em; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 760px; margin-bottom: 22px; font-family: var(--serif); font-size: clamp(44px, 6vw, 74px); line-height: 1.07; letter-spacing: -.05em; }
+    .hero em { color: var(--teal); font-style: normal; }
+    .hero-lead { max-width: 720px; margin-bottom: 28px; color: #46504c; font-size: 18px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); text-decoration: none; font-size: 13px; font-weight: 780; }
+    .button.primary { border-color: var(--teal); color: #fff; background: var(--teal); }
+    .button:hover { transform: translateY(-1px); }
+
+    .value-panel { position: relative; min-height: 430px; padding: 30px; overflow: hidden; border-radius: 28px; color: #fff; background: var(--teal-deep); box-shadow: var(--shadow); }
+    .value-panel::before { content: ""; position: absolute; right: -80px; top: -90px; width: 250px; height: 250px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; box-shadow: 0 0 0 44px rgba(255,255,255,.035), 0 0 0 88px rgba(255,255,255,.02); }
+    .panel-label { position: relative; color: rgba(255,255,255,.6); font-size: 11px; letter-spacing: .14em; }
+    .value-list { position: relative; margin: 34px 0 26px; }
+    .value-row { display: grid; grid-template-columns: 78px 1fr; gap: 18px; padding: 18px 0; border-top: 1px solid rgba(255,255,255,.18); }
+    .value-row b { font-family: var(--serif); font-size: 23px; }
+    .value-row span { color: rgba(255,255,255,.72); font-size: 12px; }
+    .panel-foot { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding-top: 18px; border-top: 1px solid rgba(255,255,255,.18); }
+    .panel-foot span { color: rgba(255,255,255,.62); font-size: 10px; }
+    .panel-foot span + span { padding-left: 12px; border-left: 1px solid rgba(255,255,255,.16); }
+    .panel-foot strong { display: block; color: #fff; font-size: 16px; }
+
+    .section { padding: 84px 0; }
+    .band { background: rgba(255,253,248,.75); border-block: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: .85fr 1.15fr; gap: 54px; align-items: end; margin-bottom: 34px; }
+    .section-no { color: var(--orange); font-size: 11px; font-weight: 850; letter-spacing: .16em; }
+    h2 { margin: 7px 0 0; font-family: var(--serif); font-size: clamp(31px, 4vw, 48px); line-height: 1.15; letter-spacing: -.035em; }
+    .section-intro { margin: 0; color: var(--muted); }
+
+    .context-layout { display: grid; grid-template-columns: .72fr 1.28fr; gap: 34px; align-items: stretch; }
+    .context-copy { padding: 28px; border-radius: 22px; color: #fff; background: var(--ink); }
+    .context-copy small { color: rgba(255,255,255,.56); font-weight: 780; letter-spacing: .12em; }
+    .context-copy h3 { margin: 28px 0 12px; font-family: var(--serif); font-size: 28px; line-height: 1.35; }
+    .context-copy p { margin: 0; color: rgba(255,255,255,.68); font-size: 13px; }
+    .build-map { position: relative; display: grid; grid-template-columns: .8fr 54px 1.2fr; align-items: center; min-height: 330px; padding: 26px; border-top: 3px solid var(--orange); }
+    .legacy { padding-right: 12px; }
+    .legacy b, .card-system > b { display: block; margin-bottom: 10px; color: var(--teal); font-size: 13px; }
+    .legacy p, .card-system p { margin: 0; color: var(--muted); font-size: 12px; }
+    .replace-arrow { color: var(--orange); text-align: center; font-size: 30px; font-weight: 900; }
+    .card-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0; }
+    .card-type { padding: 14px; border-radius: 12px; }
+    .card-type.numeric { color: var(--teal-deep); background: var(--teal-soft); }
+    .card-type.artifact { color: #753818; background: var(--orange-soft); }
+    .card-type.exclusive { color: #264a73; background: #e6eef8; }
+    .card-type strong { display: block; font-size: 14px; }
+    .card-type span { font-size: 11px; }
+    .build-branches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .build-branches span { padding: 8px; border-top: 2px solid var(--line); color: var(--muted); text-align: center; font-size: 10px; }
+    .balance-note { grid-column: 1 / -1; margin-top: 22px; padding-top: 17px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .balance-note strong { color: var(--ink); }
+
+    .role-rail { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 30px; }
+    .role-step { position: relative; padding: 26px 10px 8px; border-top: 2px solid var(--line); }
+    .role-step::before { content: ""; position: absolute; left: 10px; top: -6px; width: 10px; height: 10px; border: 2px solid var(--paper); border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+    .role-step time { color: var(--orange); font-size: 11px; font-weight: 850; }
+    .role-step b { display: block; margin: 13px 0 5px; font-size: 16px; }
+    .role-step p { margin: 0; color: var(--muted); font-size: 11px; }
+    .impact-strip { display: grid; grid-template-columns: 170px repeat(3, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--line); }
+    .impact-title { display: grid; place-content: center; padding: 20px; color: #fff; background: var(--teal-deep); }
+    .impact-title strong { font-family: var(--serif); font-size: 21px; }
+    .impact-item { padding: 20px; background: var(--surface); }
+    .impact-item b { display: block; margin-bottom: 6px; color: var(--teal); font-size: 13px; }
+    .impact-item span { color: var(--muted); font-size: 11px; }
+
+    .main-case { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; align-items: start; }
+    .case-narrative { position: sticky; top: 96px; }
+    .case-kicker { color: var(--orange); font-size: 11px; font-weight: 850; letter-spacing: .14em; }
+    .case-narrative h3 { margin: 9px 0 16px; font-family: var(--serif); font-size: 38px; line-height: 1.2; }
+    .case-narrative > p { color: var(--muted); }
+    .trajectory { margin-top: 25px; padding: 24px; border-radius: 18px; color: #fff; background: var(--teal-deep); }
+    .trajectory-label { color: rgba(255,255,255,.58); font-size: 10px; letter-spacing: .12em; }
+    .trajectory-row { display: grid; grid-template-columns: 1fr 82px; gap: 14px; align-items: center; margin-top: 17px; }
+    .trajectory-track { height: 10px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.14); }
+    .trajectory-fill { height: 100%; border-radius: inherit; background: #ffbf8f; }
+    .trajectory-fill.down { background: #83d3bf; }
+    .trajectory-row strong { font-size: 16px; text-align: right; }
+    .trajectory p { margin: 17px 0 0; color: rgba(255,255,255,.68); font-size: 11px; }
+    .case-steps { display: grid; gap: 0; }
+    .case-step { display: grid; grid-template-columns: 72px 1fr; gap: 20px; padding: 24px 0; border-top: 1px solid var(--line); }
+    .case-step:first-child { border-top: 3px solid var(--orange); }
+    .case-step .num { color: var(--orange); font-size: 12px; font-weight: 900; }
+    .case-step h4 { margin: 0 0 7px; font-size: 17px; }
+    .case-step p { margin: 0; color: var(--muted); font-size: 12px; }
+    .learning { margin-top: 24px; padding: 20px 22px; border-left: 4px solid var(--yellow); background: var(--yellow-soft); font-size: 12px; }
+    .learning strong { color: var(--yellow); }
+
+    .proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .proof { position: relative; padding: 26px 0 0; border-top: 3px solid var(--teal); }
+    .proof:nth-child(2) { border-top-color: var(--orange); }
+    .proof:nth-child(3) { border-top-color: var(--blue); }
+    .proof-label { color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: .1em; }
+    .proof h3 { margin: 9px 0 12px; font-size: 20px; }
+    .proof p { color: var(--muted); font-size: 12px; }
+    .proof strong { color: var(--ink); }
+    .mini-flow { display: grid; gap: 7px; margin-top: 16px; }
+    .mini-flow span { position: relative; padding: 8px 8px 8px 17px; border-left: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    .mini-flow span::before { content: ""; position: absolute; left: -4px; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
+
+    .method-rail { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 26px; }
+    .method-step { position: relative; min-height: 118px; padding: 24px 8px 0; border-top: 2px solid var(--line); }
+    .method-step::before { content: attr(data-step); position: absolute; left: 8px; top: -13px; width: 24px; height: 24px; display: grid; place-items: center; border: 3px solid var(--paper); border-radius: 50%; color: #fff; background: var(--orange); font-size: 9px; font-weight: 900; box-shadow: 0 0 0 1px var(--orange); }
+    .method-step b { display: block; margin-bottom: 5px; font-size: 13px; }
+    .method-step span { color: var(--muted); font-size: 10px; }
+    .final-thesis { display: grid; grid-template-columns: 1.25fr .75fr; gap: 36px; padding: 38px; border-radius: 24px; color: #fff; background: var(--ink); box-shadow: var(--shadow); }
+    .final-thesis h2 { margin: 0; font-size: 31px; }
+    .final-thesis div { align-self: end; }
+    .final-thesis p { margin: 0 0 14px; color: rgba(255,255,255,.66); font-size: 12px; }
+    .final-thesis .button { border-color: rgba(255,255,255,.24); color: #fff; background: rgba(255,255,255,.08); }
+    .source { margin: 16px 2px 0; color: var(--muted); font-size: 10px; }
+    footer { padding: 28px 0 48px; color: var(--muted); text-align: center; font-size: 10px; }
+
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.22,.8,.24,1); }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .nav a:not(.full-link) { display: none; }
+      .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 64px; }
+      .value-panel { min-height: 390px; }
+      .section-head, .context-layout, .main-case, .final-thesis { grid-template-columns: 1fr; }
+      .case-narrative { position: relative; top: auto; }
+      .role-rail { grid-template-columns: repeat(2, 1fr); }
+      .impact-strip { grid-template-columns: 1fr 1fr; }
+      .impact-title { grid-row: span 2; }
+      .proof-grid { grid-template-columns: 1fr; }
+      .method-rail { grid-template-columns: repeat(3, 1fr); gap: 34px 14px; }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner, .wrap { width: min(100% - 26px, 1120px); }
+      .brand span:last-child { display: none; }
+      h1 { font-size: 42px; }
+      .hero { gap: 36px; }
+      .section { padding: 64px 0; }
+      .build-map { grid-template-columns: 1fr; gap: 18px; }
+      .replace-arrow { transform: rotate(90deg); }
+      .card-types, .build-branches, .role-rail, .impact-strip, .method-rail { grid-template-columns: 1fr; }
+      .impact-title { grid-row: auto; }
+      .case-step { grid-template-columns: 48px 1fr; gap: 12px; }
+      .panel-foot { grid-template-columns: 1fr; gap: 8px; }
+      .panel-foot span + span { padding: 8px 0 0; border-left: 0; border-top: 1px solid rgba(255,255,255,.16); }
+      .final-thesis { padding: 28px; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: #fff; font-size: 10pt; }
+      .topbar { display: none; }
+      .wrap { width: 100%; }
+      .hero { min-height: auto; padding: 10mm 0; }
+      .section { padding: 10mm 0; break-before: page; }
+      .case-narrative { position: relative; top: auto; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <style>.portfolio-back{position:fixed;right:18px;bottom:18px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(8,17,31,.88);color:#fff;font:600 13px/1.2 "Microsoft YaHei",sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(12px)}.portfolio-back:hover{transform:translateY(-2px)}@media print{.portfolio-back{display:none}}</style>
+  <a class="portfolio-back" href="./" aria-label="返回平衡性项目主页">← 完整项目</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark">3′</span><span>Felix · 平衡性策划作品速览</span></div>
+      <nav class="nav" aria-label="页面导航">
+        <a href="#context">项目背景</a><a href="#role">个人贡献</a><a href="#case">主案例</a><a href="#proof">能力证据</a>
+        <a class="full-link" href="./">查看完整版</a>
+      </nav>
+    </div>
+    <div class="progress" aria-hidden="true"></div>
+  </header>
+
+  <main>
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">3-MINUTE CASE STUDY · GAME BALANCE</p>
+        <h1 id="hero-title">从数据异常<br>走到<em>版本验证</em></h1>
+        <p class="hero-lead">以《元梦之星》峡谷 5v5 为项目背景，呈现我如何把英雄与卡牌数据转化为版本候选、可执行方案和后续验证，并以多样化选择作为平衡工作的核心生态结果。</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#context">开始3分钟速览 ↓</a>
+          <a class="button" href="./">直接查看完整版</a>
+        </div>
+      </div>
+      <aside class="value-panel" aria-label="个人价值摘要">
+        <span class="panel-label">MY VALUE IN THE LOOP</span>
+        <div class="value-list">
+          <div class="value-row"><b>发现</b><span>将分层数据、版本差值与生态变化整理为有优先级的候选池。</span></div>
+          <div class="value-row"><b>收敛</b><span>把职业定位、体验判断转化为技能/卡牌数值方案与配置。</span></div>
+          <div class="value-row"><b>验证</b><span>用后续数据区分方向、幅度与归因偏差，并更新下一轮规则。</span></div>
+        </div>
+        <div class="panel-foot"><span><strong>4轮</strong>版本方案</span><span><strong>4轮</strong>配置落地</span><span><strong>0810</strong>效果回收</span></div>
+      </aside>
+    </section>
+
+    <div class="band">
+      <section class="section wrap" id="context">
+        <div class="section-head">
+          <div><span class="section-no">01 · 约45秒</span><h2>先理解这个项目的特殊性</h2></div>
+          <p class="section-intro">元梦峡谷的平衡对象不只是英雄本体。由数值卡、神器卡和英雄专属卡牌组成的卡牌系统，承担传统MOBA中装备与符文的主要构筑作用。</p>
+        </div>
+        <div class="context-layout">
+          <aside class="context-copy">
+            <small>WHY CARDS MATTER</small>
+            <h3>英雄 × 三类卡牌，才是完整的平衡单位。</h3>
+            <p>同一英雄可以因卡牌组合形成不同构筑（Build）。分析时既要判断英雄本体是否超出合理边界，也要区分强度来自数值卡、神器卡，还是英雄专属卡牌。</p>
+          </aside>
+          <div class="build-map" aria-label="卡牌系统三类结构说明">
+            <div class="legacy"><b>传统MOBA构筑</b><p>装备与符文承担属性成长、功能补充和玩法分化。</p></div>
+            <div class="replace-arrow" aria-hidden="true">→</div>
+            <div class="card-system">
+              <b>元梦峡谷：卡牌系统替代主要构筑功能</b>
+              <p>卡牌系统由数值卡、神器卡和英雄专属卡牌组成，分别承担基础数值成长、通用强力效果和英雄流派构筑。</p>
+              <div class="card-types">
+                <div class="card-type numeric"><strong>数值卡</strong><span>提供伤害、生存、冷却或资源等直接数值成长</span></div>
+                <div class="card-type artifact"><strong>神器卡</strong><span>提供影响更显著的通用强化或特殊效果</span></div>
+                <div class="card-type exclusive"><strong>英雄专属卡牌</strong><span>参考《云顶之弈》强化符文思路，放大英雄特点并创造多种构筑流派</span></div>
+              </div>
+              <div class="build-branches"><span>基础数值成长</span><span>通用特殊效果</span><span>英雄构筑分化</span></div>
+            </div>
+            <p class="balance-note"><strong>平衡含义：</strong>需要同时评估英雄基础强度、卡牌强度、卡牌选取结构及组合后的叠加效应，避免只有一套最优构筑挤压其他选择。</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section wrap" id="role">
+      <div class="section-head">
+        <div><span class="section-no">02 · 约35秒</span><h2>我在项目中负责什么</h2></div>
+        <p class="section-intro">职责从协作分析和配置执行逐步扩展到独立方案与完整闭环；作品中的时间线按实际参与边界呈现。</p>
+      </div>
+      <div class="role-rail" aria-label="职责成长时间线">
+        <article class="role-step"><time>0618</time><b>参与方案与配置</b><p>在指导下参与英雄/卡牌分析、数值设计与配置落地。</p></article>
+        <article class="role-step"><time>0702</time><b>完成协作决策</b><p>独立建立候选池，参与团队收敛、数值方案与具体配置落地。</p></article>
+        <article class="role-step"><time>0723</time><b>主导独立提案</b><p>主导削强补弱方案与具体配置，经评审校准后对照正式版本。</p></article>
+        <article class="role-step"><time>0806—0810</time><b>主导完整闭环</b><p>完成五轮方案迭代与具体配置，并进行效果回收与分歧追踪。</p></article>
+      </div>
+      <div class="impact-strip" aria-label="个人贡献价值">
+        <div class="impact-title"><span>个人贡献</span><strong>不止是改数值</strong></div>
+        <div class="impact-item"><b>数据 → 优先级</b><span>从全英雄异常中确定当期候选，避免单指标直接决策。</span></div>
+        <div class="impact-item"><b>定位 → 可执行方案</b><span>将英雄定位和对抗体验转化为技能/卡牌调整点与幅度。</span></div>
+        <div class="impact-item"><b>结果 → 下一版规则</b><span>把落地差异和后续数据写回分析流程，而非止于一次结论。</span></div>
+      </div>
+    </section>
+
+    <div class="band">
+      <section class="section wrap" id="case">
+        <div class="section-head">
+          <div><span class="section-no">03 · 约60秒</span><h2>主案例：玄玄子强度异常</h2></div>
+          <p class="section-intro">这个案例同时覆盖异常识别、卡牌定位、正式落地、数据验证与方法校准，是最能代表完整工作能力的一条链。</p>
+        </div>
+        <div class="main-case">
+          <aside class="case-narrative">
+            <span class="case-kicker">0806方案 → 0810验证</span>
+            <h3>从连续走高，到回到合理区间</h3>
+            <p>玄玄子的强度并非单期波动：前期数据出现约17个百分点跃升，后续继续处于高位，说明问题已经从观察项转为需要处理的版本对象。</p>
+            <div class="trajectory" aria-label="玄玄子关键趋势">
+              <span class="trajectory-label">SIMPLIFIED TREND</span>
+              <div class="trajectory-row"><div class="trajectory-track"><div class="trajectory-fill" style="width:100%"></div></div><strong>约 +17</strong></div>
+              <div class="trajectory-row"><div class="trajectory-track"><div class="trajectory-fill down" style="width:64%"></div></div><strong>约 −11</strong></div>
+              <p>前者为异常上升幅度，后者为0806调整后的回落幅度，单位均为百分点。</p>
+            </div>
+          </aside>
+          <div>
+            <div class="case-steps">
+              <article class="case-step"><span class="num">01</span><div><h4>问题识别</h4><p>胜率与热度连续走高，且在多个验证窗口维持高位，排除单期小样本波动。</p></div></article>
+              <article class="case-step"><span class="num">02</span><div><h4>强度定位</h4><p>英雄同时具备稳定控制、高安全性和核心专属卡牌收益；方案重点放在控制链、结界持续与专属卡牌。</p></div></article>
+              <article class="case-step"><span class="num">03</span><div><h4>我的方案</h4><p>将结界上限由5秒降至3秒，同向调整控制与专属卡牌；基于局均伤害判断，初稿暂不调整本体伤害。</p></div></article>
+              <article class="case-step"><span class="num">04</span><div><h4>正式版本与结果</h4><p>结界与专属卡牌方向一致，同时进一步下调本体伤害并延长冷却时间。0810数据回落约11个百分点，调整目标得到验证。</p></div></article>
+            </div>
+            <div class="learning"><strong>方法校准：</strong>方案准确识别了异常对象和卡牌方向，但对本体源头的处理偏保守。当英雄的强度与安全性同时偏高时，应同时评估伤害、控制时长与冷却时间，而非只调整卡牌。</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section wrap" id="proof">
+      <div class="section-head">
+        <div><span class="section-no">04 · 约30秒</span><h2>三项补充能力证据</h2></div>
+        <p class="section-intro">主案例证明完整闭环，以下三个案例分别说明数值设计精度、数据能力边界和生态分析能力。</p>
+      </div>
+      <div class="proof-grid">
+        <article class="proof">
+          <span class="proof-label">数值设计 · 瑶</span><h3>定位低风险保护收益</h3>
+          <p>问题不只在静态胜率，而在低风险保护对辅助选择的挤压。方案将共生减免从14%调整至8%—10%，正式版本落地为10%。</p>
+          <p><strong>证明：</strong>核心专属卡牌可量化时，能够同时控制调整方向与幅度。</p>
+        </article>
+        <article class="proof">
+          <span class="proof-label">能力边界 · 项羽</span><h3>数据无法独立判断战斗循环</h3>
+          <p>数据提示生存能力不足，但正式版本同时降低冷却、提高攻速并补充伤害，解决“技能循环不顺畅”的体验问题。</p>
+          <p><strong>证明：</strong>数据负责确定强弱维度，操作循环与角色定位需要实战和团队校验。</p>
+        </article>
+        <article class="proof">
+          <span class="proof-label">生态分析 · 三个阶段</span><h3>优先处理环境根因</h3>
+          <div class="mini-flow"><span>孙悟空翻新：高机动爆发压缩后排生存空间</span><span>白衡上线：宠物改变技能命中与目标选择</span><span>元坦上线：保护能力延长击杀耗时，重排受益英雄</span></div>
+          <p><strong>证明：</strong>集体性变化先回到环境层归因，避免逐个加强受压英雄。</p>
+        </article>
+      </div>
+    </section>
+
+    <div class="band">
+      <section class="section wrap" id="method">
+        <div class="section-head">
+          <div><span class="section-no">05 · 约20秒</span><h2>我沉淀的工作方法</h2></div>
+          <p class="section-intro">以多样化选择为目标，用公平、对抗体验和版本可控性约束方案；每一步都对应明确交付物。</p>
+        </div>
+        <div class="method-rail" aria-label="平衡工作六步流程">
+          <div class="method-step" data-step="1"><b>数据提取</b><span>统一口径与玩家分层</span></div>
+          <div class="method-step" data-step="2"><b>生态归因</b><span>识别震源与影响链</span></div>
+          <div class="method-step" data-step="3"><b>圈定对象</b><span>强势、弱势与观察项</span></div>
+          <div class="method-step" data-step="4"><b>定位变量</b><span>技能、卡牌与伤害结构</span></div>
+          <div class="method-step" data-step="5"><b>确定幅度</b><span>对标、体验与风险校验</span></div>
+          <div class="method-step" data-step="6"><b>结果回收</b><span>验证并更新下一版规则</span></div>
+        </div>
+        <div class="final-thesis">
+          <h2>这份作品呈现的核心能力，是把数据判断转化为可执行、可验证、可迭代的版本决策。</h2>
+          <div><p>速览版仅保留代表性证据。完整版包含四轮方案对照、三轮生态分析、全部案例索引及完整方法论。</p><a class="button" href="./">继续阅读完整版 →</a></div>
+        </div>
+        <p class="source">数据说明：胜率与出场率仅展示关键趋势或近似变化；内部字段、文件名、样本阈值与协作身份均已脱敏。</p>
+      </section>
+    </div>
+  </main>
+
+  <footer>Felix · Game Balance Design Portfolio · 3-Minute Overview · 2026</footer>
+
+  <script>
+    const progress = document.querySelector('.progress');
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = `${max > 0 ? Math.min(100, window.scrollY / max * 100) : 0}%`;
+    };
+    updateProgress();
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const targets = [...document.querySelectorAll('.section-head, .context-layout, .role-step, .impact-strip, .main-case, .proof, .method-rail, .final-thesis')];
+      targets.forEach(target => target.classList.add('reveal'));
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+      targets.forEach(target => observer.observe(target));
+    }
+  </script>
+</body>
+</html>
