@@ -14,7 +14,7 @@
 
 | 项目 | 重点能力 | 入口 |
 | --- | --- | --- |
-| 凌音卡牌制作 | 英雄理解、卡牌机制、Build 设计、数值校验 | `lingyin-card-design/` |
+| 凌音卡牌制作 | 六路 Build、7张卡配置验证、2条训练场玩法循环、数值校验 | `lingyin-card-design/` |
 | 平衡性方案及方法论 | 数据诊断、平衡 SOP、落地验证、版本复盘 | `balance-design-methodology/` |
 | MOBA 战斗数值计算 | 属性价值、技能预算、卡牌价值、敏感性检查 | `moba-combat-numerical-method/` |
 | 趣味星能 | 用户洞察、玩法创意、风险控制、反馈迭代 | `fun-hextech-aram/` |
